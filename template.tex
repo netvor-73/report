@@ -1,0 +1,77 @@
+\documentclass[a4paper, 12pt]{book}
+\usepackage{microtype} %used to manage hyphenations
+\usepackage[utf8]{inputenc}% for the accents
+\usepackage{graphicx}
+\usepackage{afterpage}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage[a4paper, inner=1.5cm, outer=1.5cm, top=2cm, bottom=3cm, bindingoffset=1cm]{geometry}
+\frenchspacing
+\renewcommand{\bibname}{References}
+\setcounter{tocdepth}{3}
+
+%temporary packages
+\usepackage[english]{babel}
+\usepackage{blindtext}
+% \usepackage{titlesec}
+%
+% \titleclass{\chapter}{straight}
+%using one half spacing between lines.
+\usepackage[onehalfspacing]{setspace}
+
+\usepackage{paralist}
+\usepackage{cleveref}
+
+\usepackage{array}
+\usepackage{booktabs}
+
+\newcommand{\head}[1]{\textbf{#1}}
+\setlength{\abovetopsep}{10pt}
+
+\begin{document}
+\frontmatter
+%the entire document will be divided into chapters only.
+% \chapter*{Abstract}
+% \blindtext
+% \addcontentsline{toc}{chapter}{Abstract}
+% \nopagebreak
+%
+% \chapter*{Acknowledgement}
+% \blindtext
+% \addcontentsline{toc}{chapter}{Acknowledgement}
+%
+% \tableofcontents
+% \addcontentsline{toc}{chapter}{\contentsname}
+% \listoffigures
+% \addcontentsline{toc}{chapter}{\listfigurename}
+% \listoftables
+% \addcontentsline{toc}{chapter}{\listtablename}
+% \addtocontents{toc}{\bigskip}
+
+\mainmatter
+
+\include{chapters/chapter1}
+
+
+
+\backmatter
+\bibliographystyle{plain}
+\bibliography{tex}
+
+\appendix
+\cleardoublepage
+\addtocontents{toc}{\bigskip}
+\addcontentsline{toc}{part}{Appendix}
+
+\chapter{Symbols}
+
+\begin{description}
+
+  \item[CNN] Convolutional neural networks
+  \item[ANN] Artifitial neural networks
+
+\end{description}
+
+%you just put a definition list.
+
+\end{document}

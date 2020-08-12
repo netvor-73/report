@@ -1,0 +1,12 @@
+\babel@toc {english}{}
+\contentsline {chapter}{Abstract}{i}%
+\contentsline {chapter}{Acknowledgement}{iii}%
+\contentsline {chapter}{Contents}{v}%
+\contentsline {chapter}{List of Figures}{vii}%
+\contentsline {chapter}{List of Tables}{ix}%
+\vspace \bigskipamount 
+\contentsline {chapter}{\numberline {1}Background theory}{1}%
+\contentsline {section}{\numberline {1.1}Feed-Forward neural networks}{1}%
+\vspace \bigskipamount 
+\contentsline {part}{Appendix}{5}%
+\contentsline {chapter}{Symbols}{5}%
