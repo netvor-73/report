@@ -31,7 +31,7 @@ Abbreviating this equation into vector notation:
   \textbf{w}\cdot\textbf{x} + b = 0
 \end{equation}
 
-Where $\textbf{w} = \{w_{1}, w_{2}\}$. We refer to $\textbf{x}$ as the input, $\textbf{w}$ as the weights and $b$ as the bias. Here $\textbf{y} = \{0, 1\}$ is the label, where 0 indicates the student being rejected whereas 1 indicates the student being accepted. Finally, our prediction is going to be called \boldmath{$\hat{y}$} and it will be what the algorithm predicts that the label will be, namely:
+Where $\textbf{w} = \{w_{1}, w_{2}\}$. We refer to $\textbf{x}$ as the input, $\textbf{w}$ as the weights and $b$ as the bias. Here $\textbf{y} = \{0, 1\}$ is the label, where 0 indicates the student being rejected whereas 1 indicates the student being accepted. Finally, our prediction is going to be called \mbox{\boldmath{$\hat{y}$}} and it will be what the algorithm predicts that the label will be, namely:
 
 \begin{equation}
   \label{y_hat}
@@ -42,4 +42,28 @@ Where $\textbf{w} = \{w_{1}, w_{2}\}$. We refer to $\textbf{x}$ as the input, $\
   \end{dcases*}
 \end{equation}
 
-and the goal of the algorithm is to have \boldmath{$\hat{y}$} resembling \boldmath{$y$} as closely as possible. 
+and the goal of the algorithm is to have \mbox{\boldmath{$\hat{y}$}} resembling \mbox{\boldmath{$y$}} as closely as possible. Reorgnizing the equations in a graph and generalizing, gives rise to \cref{fig:neuron}. Here the bias is consider as a dummy input with value 1 to the Perceptron with weight b.
+
+% \afterpage{\cleardoublepage}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/neuron.png}
+  \caption{perceptron's graph representation}\label{fig:neuron}
+\end{figure}
+
+Giving a training set, the classification of the input vector is based upon $\textbf{w}$, therefor the goal of the algorithm is to determine those weights through an iterative process. The probelm given here is that the algorithm can only learn linear functions since the output of the perceptron is a simple linear combination of the input. In real world situation, the data is much more complex and highly non-linear, therefore to remedy this problem we shall introduce a non-linearty in our algorithm, namely the sigmoid function.
+
+$$
+\sigma(x) = \frac{1}{1 + e^{-x}}
+$$
+
+The sigmoid function returns the probability of an event occuring, thus in our example the sigmoid function would output the probability of a student getting accepted or rejected, which can be expressed as the the conditional probability $p(y=1 | x) = \sigma(w\cdot x + b)$.
+
+In order to estimate the accuracy of the algorithm, we take the joint probability of the entire training set, assuming the training examples being independent events:
+
+\begin{equation}
+  \label{equ:likelihood}
+  p(y^{(1)}, y^{(2)}, \ldots, y^{(n)} | x^{(1)}, \ldots, x^{(n)}) = \prod_{i=1}^{n} p(y^{(i)}|x^{(i)})
+\end{equation}
+
+where $x^{(i)}$, $y^{(i)}$ represent the $i^{th}$ training example and label respectively. Thus by maximizing the joint probability which is dependent on the parameters $\textbf{w}$ and $b$, 

@@ -9,3 +9,5 @@
 *.log
 *.lot
 *.toc
+figs/resize.py
+.gz
