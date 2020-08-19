@@ -10,4 +10,5 @@
 *.lot
 *.toc
 figs/resize.py
-.gz
+*.gz
+*.out
