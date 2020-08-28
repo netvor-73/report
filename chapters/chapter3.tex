@@ -1,0 +1,137 @@
+\chapter{CNN application: Object detection}
+The concept of convolution and convolutional neural networks has been applied to many real life problems: including object classification
+object detection, speech recognition, disease depiction in medical images, self driving cars, and many more.
+In this is chapter, we will focus on present the state-of-the-art detection systems: YOLO object detection which stands for you only look once
+and R-CNN which stands for Region-CNN.
+Object detection is the task of detecting, meaning classifying and localizing instances of semantic objects of a certain class (in our
+case algerian car plates along with their digits). An object detection algorithm should not only be able to classify an object but as well as
+localizing it in an image by drawing a bounding box around it. See \cref{fig:detection}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/person.png}
+  \caption{Example of what an object detection system should accomplish}\label{fig:detection}
+\end{figure}
+
+\section{YOLO: you only look once}
+Over the past few years, the YOLO algorithm have evolved quite a lot going from YOLOv1 all through version four. The different
+improvements that this algorithm went through are just the fruits of many research developements in the deep learning field incorporated into it to
+make it more robust and less prone to errors. In this section we shall present the version three of YOLO. Version four has only been developed in
+april 2020 during the middle of the pandemic. Many techniques have been included in this last paper which makes a bit difficult since we have to go
+through all the new details. Therefore we shall only present version three which we already have a solid background of.
+
+\subsection{Bounding boxes}
+The YOLO algorithm divides the input image into an $S \times S$ grid. If the center of an object falls into a grid cell, that grid cell is responsible
+for detecting that object \cite{YOLOv1}. Each grid cell predicts $B$ bounding boxes, using anchor boxes. Anchor boxes are predefined boxes of certain width and height.
+Those boxes are defined to capture the scale and aspect ratio of specific object classes you want to detect. They are typically chosen based on object
+sizes in the training data \cite{MWAB}, see . Anchor boxes have been introduced to solve two issues (second issue discussed in \cref{sub:net_design}). Objects in the YOLO algorithm are associated with grid cells that their
+centers fall into. If two objects' centers fall into the same grid cell we wont be able to predict both objects. Therefore, we can associate
+each grid cell with multiple anchor boxes each responsible to detect only one object in that cell. A typical number of boxes used is three. See \cref{fig:yolo_output}.
+Each bounding box is associated with a confidence score, which reflects how confident the network is that the bounding box contains an object (also called objectness) \cite{YOLOv1}.
+This should be ideally 1 if there is an object otherwise 0 \cite{YOLOv3}.Then $b_{x},\ b_{y},\ b_{h},\ b_{w}$ that defines the bounding box, where $b_{x}$ and $b_{y}$ represents the box's
+center coordinates and $b_{h},\ b_{w}$, the height and width respectively \cite{CERA}. And the class confidence scores. For instance if we are building a self driving car object detection system, we may want to detects cars, pedestrians and motorcycles. Therefore, each grid cell will be associated with
+an $((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$ dimensional vector. See \cref{fig:yolo_output}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/anchor_box.png}
+  \caption[Example of anchor boxes]{Example of anchor boxes. As we can see on the figure, the anchor boxes capture the scale and aspect ratio of cars and pedestrians. Indeed, most cars and humans will have approximately the same scale and aspect ratio. The vector $y$ is composed of the objectness score as well as the bounding boxes and the class probabilities repeated for each anchor box. Here two anchor boxes have been used. YOLOv3 uses 3 anchor boxes. The image has been divided into a $3 \times 3$ grid just for illustration. The vector $y$ represents the manual labeling for the central cell. Anchor box 1 is associated with the pedestrian while the second one is associated with the car.}\label{fig:yolo_output}
+\end{figure}
+
+
+\subsection{Network design}\label{sub:net_design}\label{sec:network}
+
+The network is a series of convolutional and pooling layers chosen so that the network eventually maps the input image $W \times H \times 3$ to
+an output volume $S \times S \times ((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$. YOLO's convolutional layers down-sample the image by a factor of 32
+Now, to train the convolutional neural network, we pick an image size of $416 \times 416$.
+This number has been chosen because we want an odd number of
+locations in our feature map so there is a single center cell.
+Objects, especially large objects, tend to occupy the center
+of the image so it’s good to have a single location right at
+the center to predict these objects instead of four locations
+that are all nearby \cite{YOLOv2}.
+so by using an input image of 416 we get an output feature map of $13 \times 13$.
+The second issue anchor boxes address is the training instability \cite{YOLOv2}. In fact, during the early epochs of training if $b_{x}\ and\ b_{y}$ are randomly initialized, the network
+struggles to converge to the right ground truth box's center. To overcome this problem, YOLO predicts location coordinates $b_{x}\ and\ b_{y}$ relative to the grid
+cell. This bounds the ground truth to fall between 0 and 1. We use sigmoid activation to constrain the network's prediction to fall in this range.
+The network predicts $B$ bounding boxes at each cell in the output feature map. The network predicts 5 coordinates for each bounding box $t_{x},\ t_{y},\ t_{h},\ t_{w}\ and\ t_{0}$, see \cref{fig:true_yolo_output}. If the cell is
+offset from the top left corner of the image by $(c_{x}; c_{y})$ and
+the anchor box has width and height $p{w},\ p_{h}$, then
+the predictions correspond to \cite{YOLOv2}:
+
+\begin{align}
+  \label{bbox}
+  b_{x} &= \sigma(t_{x}) + c_x \\
+  b_{y} &= \sigma(t_{y}) + c_y \\
+  b_{w} &= p_{w}e^{t_{w}} \\
+  b_{h} &= p_{h}e^{t_{h}}
+\end{align}
+
+Since we constrain the location prediction the
+parametrization is easier to learn, making the network
+more stable \cite{YOLOv2}, see \cref{fig:bbox_calculation}.
+The question that naturally rises is: How, at the beginning, do we get $p_{w},\ p_{h}$ ? Otherwise, how to assign an anchor box to a ground truth object ?
+The answer to this question is given is \cref{IOU} as we need to define an important function (IoU) to proceed.
+
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/bbox.png}
+  \caption{The true output of YOLOv3 after introducing the training instability issue.}\label{fig:true_yolo_output}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=.5]{figs/box.png}
+  \caption{Bounding box calculation}\label{fig:bbox_calculation}
+\end{figure}
+
+During training we optimize the following, multi-part
+loss function:
+
+\begin{multline}
+  \label{equ:loss}
+  \sum_{scales} \lambda_{coord} \sum_{i=0}^{S^2}  \sum_{j=0}^{B} {1}^{obj}_{i,j}  \big[ (t_x - \hat{t}_x)^2  +  (t_y - \hat{t}_y)^2  +  (t_w - \hat{t}_w)^2  +  (t_h - \hat{t}_h)^2  \big] \\
++ \sum_{i=0}^{S^2}  \sum_{j=0}^{B} {1}^{obj}_{i,j} \big[ - \log(\sigma(t_o))  + \sum_{k=1}^{C} BCE(\hat{y}_k, y_k \big]   \\
++ \lambda_{noobj} \sum_{i=0}^{S^2}  \sum_{j=0}^{B} {1}^{noobj}_{i,j}  \big[ -log(1-\sigma(t_o))  \big]
+\end{multline}
+
+where $1^{obi}_{i, j}$ denotes if object appears in cell $i$ and that the $j^{th}$ anchor box in cell $i$ is “responsible” for that prediction.
+If an anchor box is not assigned to a ground truth object it incurs no loss for coordinate or class predictions, only objectness.
+In cells that contain an object, the bounding box coordinates are calculated using the sum-squared loss function.
+Each box predicts the classes the bounding box may contain using multilabel classification. In other words, binary cross-entropy loss is used (BCE).
+The same binary cross-entropy loss is used to for objecness prediction as \cref{equ:loss} states it.
+
+\subsection{Processing the algorithm's output}\label{IOU}
+
+After training, the network at inference time will find multiple detections. In fact, for each cell in the $S \times S$ grid, using $B$ anchor
+boxes, the algorithm will infer $B$ bounding boxes for each cell, which makes a total of $B \times S^2$. Therefore an object can be detected
+multiple times.  \textbf{Non-max suppression} is an algorithm that cleans up those detections and makes sure each object gets detected only once.
+Before discussing it though, let us introduce an important function called \textbf{Intersection over Union} (IoU for short) that calculates how much
+a box or a rectangle overlaps another. So, IoU calculates the area defined by the intersection of the two boxes and divide it by the area defined by
+their union. See \cref{fig:iou}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/iou_2.png}
+  \caption{Intersection over union.}\label{fig:iou}
+\end{figure}
+
+IoU is an evaluation metric used to measure the accuracy of an object detection system on a particular data set. Indeed, most object detection
+algorithm will judge a detection to be correct if the IoU between the ground truth box and the detected box is more than 0.5, see
+\cref{fig:iou_sample}. We often see this evaluation metric used in object detection challenges such as the popular PASCAL VOC challenge \cite{pascal}. \\
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/sample_iou_scores.png}
+  \caption{Sample IoU scores.}\label{fig:iou_sample}
+\end{figure}
+
+Back to our original question, how non-max suppression works. First, all the boxes having an $objectness \times the\ class\ probability$ less or
+equal than some threshold are discarded (typical value used is .6). While there any remaining boxes, we pick the box with the largest $objectness
+\times the\ class\ probability$ and output it as a prediction. Then we discard an remaining box with $IoU \geq 0.5$ with the box outputed in the
+previous step. This algorithm ensures that each object is detected only once. \\
+
+In \cref{sec:network} we discussed how the bounding boxes are being computed, and we finished it with a question: How does the anchor boxes being
+assigned to ground truth objects at the beginning? YOLOv3 assigns the anchor with the highest Intersection-over-Union (IoU) overlap with a ground
+truth box.
