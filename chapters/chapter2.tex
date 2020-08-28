@@ -1,0 +1,269 @@
+\chapter[Convolution neural networks]{Neural network Variant: Convolutional Neural Networks}
+
+Convolutional networks, also known as convolutional neural networks, or CNNs, are a specialized kind of neural network for processing data
+that has a known grid-like topology. Examples include time-series data, which can be thought of as a 1-D grid taking samples at regular time intervals, and image data, which can be thought of as a 2-D grid of pixels. Convolutional networks have been tremendously
+successful in practical applications. The name “convolutional neural network” indicates that the network employs a mathematical operation
+called convolution. Convolution is a specialized kind of linear operation. Convolutional networks are simply neural networks that use
+convolution in place of general matrix multiplication in at least one of their layers \cite{Ian16}.
+
+\section{The convolution operation}
+
+The convolution operation is well known in the engineering terminology, which, in its most general form, is an operation on two functions of a real-valued argument.
+defined as:
+
+\begin{equation}
+  \label{convolution}
+  s[n] = y[n] \ast x[n] = \sum_{k=-\infty}^{k=\infty} y[k] x[n - k]
+\end{equation}
+
+We are interested in the discrete convolution operation, since data on a computer is presented as discrete values rather than continuous
+signals.
+The \cref{convolution} presented above is for discrete time signals. \\
+
+In convolution neural network terminology, the first argument to the convolution is often referred to as \textbf{the input}, and the second argument as \textbf{the kernel}.
+The output is sometimes referred as the \textbf{feature map}. The input is usually a multidimensional array of data (RGB images), and the kernel is usually a multidimensional array of parameters that are adapted by the learning algorithm. These multidimensional arrays are referred as tensors. Finally, we often use convolution over more than one axis at a time.
+For example if we use a two-dimensional image $I$ as our input, we probably also want to use a
+two-dimensional kernel $K$:
+
+\begin{equation}
+  \label{2Dconvolution}
+  S[m, n] = I[m, n] \ast K[m, n] = \sum_{i}\sum_{j} I[i, j] K[m - i, n - j].
+\end{equation}
+
+Convolution is commutative, meaning we can equivalently write:
+
+\begin{equation}
+  \label{2Dflipped}
+  S[m, n] = K[m, n] \ast I[m, n] = \sum_{i}\sum_{j} I[m - i, n -j] K[i, j].
+\end{equation}
+
+While the commutative property is useful for writing proofs, it is not usually an important property of a neural
+network implementation. Instead, many neural network libraries implement a
+related function called the cross-correlation, which is the same as convolution
+but without flipping the kernel:
+
+\begin{equation}
+  \label{cross-correlation}
+  S[m, n] = I[m, n] \ast K[m, n] = \sum_{i}\sum_{j} I[m + i, n + j] K[i, j].
+\end{equation}
+
+Many machine learning libraries implement cross-correlation but call it convolution. See \cref{fig:conv-ex} for an example of convolution
+applied to a 2d tensor (gray-scale image).
+
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/conv_ex.png}
+  \caption{An example of 2-D convolution}\label{fig:conv-ex}
+\end{figure}
+
+\section{Convolution networks architecture}
+
+Convolution leverages three important ideas that can help improve a machine learning system: sparse connectivity, parameter sharing and
+equivariant representations.
+
+Traditional neural network layers use matrix multiplication by a matrix of parameters with a separate parameter describing the interaction between each input unit and each output unit. This means that every output unit interacts with every input unit, see \cref{fig:fully_connected}.
+Convolutional networks, however, typically have sparse interactions (also referred to as \textbf{sparse connectivity} or sparse weights).
+This is accomplished by making the kernel smaller than the input.
+For example, when processing an image, the input image might have thousands or millions of pixels, but we can detect small, meaningful features such as edges with kernels that occupy only tens or hundreds of pixels. This means that we need to store
+fewer parameters, which both reduces the memory requirements of the model and improves its statistical efficiency.
+It also means that computing the output requires fewer operations. These improvements in efficiency are usually quite large.
+If there are $m$ inputs and $n$ outputs, then matrix multiplication requires $m \times n$
+parameters, and the algorithms used in practice have $O(m \times n)$ runtime (per example).
+If we limit the number of connections each output may have to $k$, then the sparsely connected approach requires
+only $k \times n$ parameters and $O(k \times n)$ runtime. For many practical applications, it is possible to obtain good performance
+on the machine learning task while keeping $k$ several orders of magnitude smaller
+than $m$ \cite{Ian16}. For graphical demonstrations of sparse connectivity, see \cref{fig:s_conv_1} and \cref{fig:s_conv_2}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/fully_connected.png}
+  \caption[Traditional neural network connections]{Traditional neural network connections. The last layer has been replace by a black box for simplicity}\label{fig:fully_connected}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/conv_1.png}
+  \caption{Sparce connectivity}\label{fig:s_conv_1}
+\end{figure}
+
+Rearranging each vector as a matrix, the relationship between the nodes in each layer are more obvious, see \cref{fig:s_conv_2}.
+
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/conv_2.png}
+  \caption{Sparce connectivity after rearrangement}\label{fig:s_conv_2}
+\end{figure}
+
+\textbf{Parameter sharing} refers to using the same parameter for more than one function in a model. In a traditional neural net, each
+element of the weight matrix is used exactly once when computing the output of a layer. It is multiplied by one element of the input and
+then never revisited. As a synonym for parameter sharing, one can say that a network has tied weights, because the value of the
+weight applied to one input is tied to the value of a weight applied elsewhere \cref{fig:fully_connected}.
+That is the reason, traditional nets are referred as to Fully connected networks or Dense networks.\\
+
+In a convolutional neural net, each member of the kernel is used at every position
+of the input (except perhaps some of the boundary pixels, depending on the
+design decisions regarding the boundary). The parameter sharing used by the
+convolution operation means that rather than learning a separate set of parameters
+for every location, we learn only one set. In \cref{fig:s_conv_2}, each of the color coded image quarters are connected to a single color
+coded node in the next layer. All of these connections have exactly the same shared weights, see \cref{fig:conv-ex}, the weights $w_{11}$
+through $w_{33}$ do not change as the filter slides through the image. This does not affect the runtime of
+forward propagation—it is still $O(k \times n)$—but it does further reduce the storage
+requirements of the model to $k$ parameters. The particular form of parameter sharing causes the
+layer to have a property called \textbf{equivariance to translation}. \\
+
+To say a function is equivariant means that if the input changes, the output changes in the same way.
+Specifically, a function $f(x)$ is equivariant to a function $g$ if $f(g(x)) = g(f(x))$. In
+the case of convolution, if we let $g$ be any function that translates the input, that
+is, shifts it, then the convolution function is equivariant to $g$. For example, let $I$
+be a function giving image brightness at integer coordinates. Let $g$ be a function
+mapping one image function to another image function, such that $I^{\prime} = g(I)$ is the
+image function with $I^{\prime}(x, y) = I(x - 1, y)$. This shifts every pixel of $I$ one unit to
+the right. If we apply this transformation to $I$, then apply convolution, the result
+will be the same as if we applied convolution to $I$, then applied the transformation
+$g$ to the output. With images, convolution creates a 2-D map of where certain features appear in the input. If we move the object in the
+input, its representation will move the same amount in the output. This is useful for when we know that some function of a small number of
+neighboring pixels is useful when applied to multiple input locations. For example, when processing
+images, it is useful to detect edges in the first layer of a convolutional network.
+The same edges appear more or less everywhere in the image, so it is practical to share parameters across the entire image. \\
+
+Convolution is not naturally equivariant to some other transformations, such as changes in the scale or rotation of an image. Other
+mechanisms are necessary for handling these kinds of transformations. To illustrate these principles in action, we shall use a hand picked
+filter that used to detect edges in a image, see below.
+
+$$
+K = \begin{pmatrix}
+0  & -1  &  0 \\
+-1 &  4  & -1 \\
+0  & -1  &  0
+\end{pmatrix}
+$$
+
+These filters are called high pass filters. They enhance high frequency components in an image. Frequency in images just like in signals is the rate
+of change of the intensity, which areas in neighboring pixels that rapidly changes for example from very dark to very light (in grayscale images).
+See \cref{fig:filter} to see the effect of applying the above filter to a grayscale image.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/panda.png}
+  \caption[2D convolution]{2D convolution. Where there is no change or little change of intensity in the original picture, the high pass filter
+  block those areas out and turn the pixels black. But in the areas where a pixel is way brighter than its immediate neighbors, the high pass filter
+  enhance the change and create a line. This has the effect of emphasizing edges. Edges are just areas in an image where the intensity changes very
+  quickly. This images has been obtain by convolving the filter $K$ with the image in the left, as we can see the three principles discussed above
+  apply to this filter. The values of $K$ didn't change while convolving (shared parameters). Space connectivity where
+  the filter looks only to a small portion of the image at a time. And the equivariant translation, where we clearly see that no matter the position
+  of the edge in the image the filter successful highlight it.}\label{fig:filter}
+\end{figure}
+
+\section{Convolutional layer}
+
+The convolutional layer is produced by applying a series of many different image filters, also known as convolutional kernels, to an input image.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/filters.png}
+  \caption{Multiple filters for mutiple pattern detection}
+\end{figure}
+
+In the example shown, 4 different filters produce 4 differently filtered output images.
+When we stack these images, we form a complete convolutional layer with a depth of 4. See \cref{fig:conv_layer}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/conv_layer.png}
+  \caption{A complete convolutional layer with 4 filters}\label{fig:conv_layer}
+\end{figure}
+
+In case of colored images, computer interprets them as 3D-tensor $(Height \times width \times channels)$. Here channels are the RGB channels. When
+performing convolution, the kernel $K$ is itself chosen to be three dimensional as well. A typical kernel $K$ would be $3 \times 3 \times 3$. The
+resulting output feature map would be $(Height \times Width)$. In order to depict multiple patterns in the image, instead of having a single kernel,
+multiple kernel are defined. Now each resulting output feature map can be considered as an image channel and stack them to get a 3 dimensional
+array. The latter 3D array can be used as input to another convolutional layer to discover patterns within the patterns that we discovered in the
+first convolutional layer. This operation can be repeated multiple times to discover various patterns within the input image.
+
+In CNNs, inference works the same way as old plain neural network. Both convolutional and Dense layers have weights and biases and initial
+randomly generated. Therefore, in the case of CNNs where the weights take the form of convolutional kernel or filters, those kernels are randomly
+generated and so are the patterns that they're initially designed to detect. As with Fully connected networks, when we construct a CNN, we will
+always specify a loss function. In the case of multiclass classification, this will be categorical cross-entropy loss(equ  from chapter 1). Then as
+we train the model through back propagation, the filters are updated at each iteration to take on values that minimizes the loss function. In other
+words, the CNN determines what kind of patterns it needs to detect base on the loss function.
+
+\section{Stride and padding}
+The behavior of a convolutional neural network can be controlled by specifying the number of filters and the size of each filter, these are referred
+to as \textbf{hyper-parameters}. For instance, to increase the number of nodes in a convolutional layer, you could increase the number of filters.
+To increase the size of the detected patterns, you could increase the size of the filters. But there are more hyper-parameters than we can tune.
+One of these hyper-parameters is referred to as the stride of the convolution. The stride is just the amount by which the filter slides over the
+image. In the previous example \cref{fig:conv-ex}, the stride was one. We move the convolution window horizontally and vertically  across the image
+one pixel at a time \cite{ud188}. The width and height of the output of the convolution is given by \cref{conv_out_1}, if the input image is $n \times n$,
+with a filter $f \times f$ :
+
+\begin{equation}
+  \label{conv_out_1}
+  n - f + 1 \times n - f + 1
+\end{equation}
+
+If we introduce the stride parameter $s$, \cref{conv_out_1} can be rewritten as follow:
+
+\begin{equation}
+  \label{conv_out_2}
+  \lfloor\frac{n - f}{s}\rfloor + 1\times \lfloor\frac{n - f}{s}\rfloor + 1
+\end{equation}
+
+
+One downside of the convolution operation is the shrinking input dimensions. Indeed, according to \cref{conv_out_1}, the input dimension shrinks
+each time by few pixels which can be an undesirable effect in very deep networks, where the image can shrink to very small dimensions. Another
+downside of the convolution is, the top left pixel (or corners of an image in general) is only involved in one pass of the filter, whereas if we
+take a pixel in the middle, then many $2 \times 2$ regions will overlap that pixel. It as if the pixels at the corners are used much less in the
+output, so information is thrown away near the edge of the image. Therefore to solve both of this problems, before applying the convolution we can
+pad the image with additional boarders, for instance 1 pixel, see \cref{fig:padding}. Therefore the width and height of the output feature map is
+calculated as:
+
+\begin{equation}
+  \label{conv_out_3}
+  \lfloor\frac{n - f + 2p}{s}\rfloor + 1 \times \lfloor\frac{n - f + 2p}{s}\rfloor + 1
+\end{equation}
+
+Now with this additional boarder of zeros, the output feature maps' dimensions can be made equal to the input's dimension by setting the
+appropriate padding value. And the corner pixels contribute more in the output feature map.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics{figs/padding.png}
+  \caption{Padding example.}\label{fig:padding}
+\end{figure}
+
+\section{Pooling}
+
+Pooling function is the next type of layer in convolutional neural networks. It replaces the output of the net at a certain location with
+a summary statistic of the nearby outputs. For example, the max pooling operation reports the maximum output within a rectangular
+neighborhood. Other popular pooling functions include average pooling of a rectangular neighborhood \cite{Ian16}.
+see figure  on how to perform max pooling.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{figs/max_pooling.png}
+  \caption{Maxpooling example. As in the convolution operation, we slide a window across the image typically a $2 \times 2$ window. The value of the
+  corresponding node in the max pooling layer is calculated by just taking the maximum of the pixels contained in the window. The pooling function
+  is applied independently on every feature map in the input stack. The output is a stack with same number of feature maps with width and height
+  reduced by a factor of two.}\label{fig:maxpooling}
+\end{figure}
+
+In all cases, pooling helps to make the representation approximately invariant to small translations of the input. Invariance to translation means
+that if we translate the input by a small amount, the values of most of the pooled outputs do not change. Invariance to local translation can be a
+useful property if we care more about whether some feature is present than exactly where it is.For example, when determining whether an image
+contains a face, we need not know the location of the eyes with pixel-perfect accuracy, we just need to know that there is an eye on the left side
+of the face and an eye on the right side of the face. Another improvement that pooling brings is the computational efficiency of the network. The
+reason being is that pooling reports summary statistics for regions spaced with stride $s$ (typically 2 is used), therefore the next layer has
+roughly $s$ times fewer inputs to process and reduces the memory requirements for storing parameters \cite{Ian16}. \\
+
+Therefore, most CNNs are composed of only those two layers: Pooling and convolution. We begin with convolution layers which detects regional patterns
+in an image using a series of filters. Typically, just like fully connected networks, an activation function is applied to the output feature maps.
+RelU activation function is used as it has proven to be extremely efficient in object classification tasks. Then pooling layers follow the
+convolutional layers to reduce the dimensionality of their input tensors. CNNs are designed with the goal of taking an input image and gradually
+making it much deeper than it is tall or wide. As the network gets deeper, it is actually extracting more and more complex patters and features that
+help identify the content and objects in an image. CNNs are usually referred to as \textbf{feature extractors}. Another issue that rises when
+training CNNs, is the input image dimensions. Since training requires large datasets of thousands of images, it no surprise that these images
+are of different sizes and shapes. Therefore CNNs requires a fixed sized input due to batch training. Indeed, instead of passing one image at a time
+through the network, we usually pass batches of images which are just stacks of images. But in order to do that, all the images have to have the
+same width and height. So, we have to pick an image size and resize all of our images to that same size before doing anything else.
