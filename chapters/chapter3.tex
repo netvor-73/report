@@ -77,13 +77,13 @@ The answer to this question is given is \cref{IOU} as we need to define an impor
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.9\textwidth]{figs/bbox.png}
-  \caption{The true output of YOLOv3 after introducing the training instability issue. The net works output a $ 13 \times 13 \times (8 \times 3)$ in this case, or simply put $13 \times 13 \times 24$ output volume. Each grid cell outputs three bounding boxes.}\label{fig:true_yolo_output}
+  \caption[The true output of YOLOv3]{The true output of YOLOv3 after introducing the training instability issue. The net works output a $ 13 \times 13 \times (8 \times 3)$ in this case, or simply put $13 \times 13 \times 24$ output volume. Each grid cell outputs three bounding boxes.}\label{fig:true_yolo_output}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[scale=.5]{figs/box.png}
-  \caption{Bounding box calculation. We predict the width and height of the box as offsets from manually chosen anchor boxes. We predict the center
+  \caption[Bounding box calculation]{Bounding box calculation. We predict the width and height of the box as offsets from manually chosen anchor boxes. We predict the center
     coordinates of the box using a sigmoid function.}\label{fig:bbox_calculation}
 \end{figure}
 

@@ -161,7 +161,7 @@ Where $x_i$ represents a training example from class $i$. Here the output consis
 \begin{figure}[!htpb]
   \centering
   \includegraphics[width=\textwidth]{figs/step_sigmoid.png}
-  \caption{sigmoid vs step function. The two plots clearly showcast the continuiuty of the sigmoid.}\label{fig:step_sigmoid}
+  \caption[sigmoid vs step function]{sigmoid vs step function. The two plots clearly showcast the continuiuty of the sigmoid.}\label{fig:step_sigmoid}
 \end{figure}
 
 Now, let us apply the gradient descent technique to our network. Our goal is to calculate the gradient of $L$ at a point $x = (x_1, \ldots, x_n)$ given by the partial derivatives, see \cref{equ:gradient}. In addition, the property \cref{equ:additivity} now become important. In fact, we are only going to calculate the value of $\nabla L_x$ for a given labeled data point and then add the values of the gradient together, see below.
@@ -210,7 +210,7 @@ The figure below depicts the architecture described above.
 \begin{figure}[!htpb]
   \centering
   \includegraphics[width=\textwidth]{figs/nn.png}
-  \caption{A visual representation of a feedforward network which approximates some function $f : \mathbb{R}^n \longrightarrow \mathbb{R}^m$ by
+  \caption[A visual representation of a feedforward network]{A visual representation of a feedforward network which approximates some function $f : \mathbb{R}^n \longrightarrow \mathbb{R}^m$ by
     computing the function $f^*(x) = (f^*_1(x), \ldots, f^*_m(x))$. In this approach, the network is shown as a
     directed weighted graph. Here $x = (x_1, \ldots, x_n)$}\label{fig:ann}
 \end{figure}
