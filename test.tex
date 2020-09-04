@@ -1,104 +1,75 @@
-\chapter*{Introduction}
-\addcontentsline{toc}{chapter}{Introduction}
-\blindtext[5]
+\chapter{Background theory}
+\section{Faster R-CNN}
 
-\chapter{Neural networks theory}
-\blindtext \cite{AN19}
+Faster R-CNN model is composed of two networks: region proposal network (RPN) for generating region proposals and a network using these proposals to detect objects. The main different here with its' predecessor Fast R-CNN is that the later uses an algorithm called "selective search" to generate region proposals. The time cost of generating region proposals is much smaller in RPN than selective search, since the RPN network does a significant part of computation which is overlaping  with the computation needed for the  object detection network. in short, RPN ranks region boxes (called anchors) from most likely to less likely to contain an object and proposes the ones most likely containing objects. The architecture is as shown in  \cref{fig:rcnn1}.
 
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.9\textwidth]{predictions}
-  \caption{Test figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/rcnn1.png}
+	\caption{rcnn1}\label{fig:rcnn1}
+\end{figure}
+
+\subsection{Anchors}
+An anchor is a rectangular area of an image. In the default configuration of Faster R-CNN, it considers 9 anchors at each position of an image. \cref{fig:rcnn2} shows 9 anchors at the position (320, 320) of an image with size (600, 800). The colors represent three scales or sizes: 128x128, 256x256, 512x512. And in each color we have three boxes that have height width ratios 1:1, 1:2 and 2:1 respectively. These two parameters are called "scales" and "aspect ratios", and they have a significant effect on the performance of our model.
+The RPN selects a position in a given image at every stride of 16 where it generates those 9 anchors. In an image of the same size as \cref{fig:rcnn2}  there will be 1989 (39x51) positions. This leads to 17901 (1989 x 9) boxes to consider. This number of anchors is hardly smaller than the technique of of sliding window and pyramid. The advantage here is that we can use region proposal netowrk, to significantly reduce number of boxes that will be considered by the classifier network.
+
+These anchors work well for Pascal VOC dataset as well as the COCO dataset. However you have the freedom to design different kinds of anchors/boxes. For example, you are designing a network to detect passengers/pedestrians, you may not need to consider the very short, very big, or square boxes. A uniform set of anchors may increase the speed as well as the accuracy.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/rcnn2.png}
+	\caption{rcnn2}\label{fig:rcnn2}
 \end{figure}
 
 
-\blindtext
+\subsection{Region Proposal Network}
+The input to the RPN module is the feature map of an image, the RPN then generates centers on the original image for each "pixel" in a feature map obtained from a forward pass through a prtrained CNN. It then generates 9 anchors around each center according to the specified scales and aspect ratios.
+The output of a RPN is a set of probabilities  for each anchor that determine the probability of a certain anchor being an object or not. It also outputs a set of error estimations for the anchors which overlap with a ground truth box. these outputs will be examined by a classifier and regressor to eventually check the occurrence of objects. To be more precise, RPN predicts the possibility of an anchor being background or foreground, and refines the dimensions of an anchor.
+Since the RPN performs a classicfication task, it will go through a training process for which we must have a clear definition of the dataset and the labels. In this case our dataset is the anchors defined for each image. As for the labels; the basic idea  is that we want to label the anchors having the higher overlaps with ground-truth boxes (the bounding box surrounding the object we wish to detect )as foreground, and the ones with lower overlaps as background. For this we use a parameter called IOU (Intersection Over Union) which computes the ratio of the area of the intersection of a certain anchor with any ground-truth box to the area of the union. If the value of the IOU is higher than a certain threshold then it would be labeled as forground otherwise it is labeled as background.
+$$
+IOU = \frac{Area of Intersection between anchor and ground-truth box}{Area of Union}
+$$
+RPN also performs a regression task on the same anchors in order to correct the dimensions and location of these same anchors. For each anchor it computes an estimation of error on the dimensions called t_{w} for the width and t_{h} for the height as well as on the location of the anchor center t_{x} and t_{y} such that
+$$
+t_{w} = log(\frac{w}{w_{a}})
+t_{h} = log(\frac{h}{h_{a}})
+t_{x} = \frac{x - x_{a}}{w_{a}}
+t_{y} = \frac{y - y_{a}}{h_{a}}
+$$
 
-\chapter[Convolutional neural networks]{Neural networks variant: Convolutional neural networks}
-\chapter{Application of CNN in object detection}
+x, y , w, h are the groud truth box center co-ordinates, width and height. x_{a}, y_{a}, h_{a} and w_{a} and anchor boxes center cooridinates, width and height.
+The final and most important component of the training process is the loss function
+$$
+L(p_{i},t_{i}) = (\frac{1}{N_{cls}}) \sum_{i}^{} L_{cls}(p_{i},p_{i}^{*}) + \lambda (\frac{1}{N_{reg}}) \sum_{i}^{} p_{i}^{*} L_{reg}(t_{i},t_{i}^{*})
+$$
+where p_{i} is the predicted probability of objectness and p_{i}^* is the actual score. t_{i} and t_{i}^* are the predicted co-oridinates and actual co-ordinates. The ground-truth label p_{i}^* is 1 if the the anchor is positive and 0 if the anchor is negative.
+\subsection{ROI Pooling}
+Region of interest pooling (also known as RoI pooling) purpose is to perform max pooling on inputs of non-uniform sizes to obtain fixed-size feature maps (e.g. 7×7). This layer takes two inputs :
+\begin{itemize}
+	\item A fixed-size feature map obtained from a deep convolutional network with several convolutions and max-pooling layers
+	\item An Nx5 matrix of representing a list of regions of interest, where N is the number of RoIs. The first column represents the image index and the remaining four are the co-ordinates of the top left and bottom right corners of the region.
+\end{itemize}
 
-\blindtext \cite{AN19}
+For every region of interest from the input list, it takes a section of the input feature map that corresponds to it and scales it to some pre-defined size (e.g., 7×7). The scaling is done by:
+\begin{itemize}
+	\item Dividing the region proposal into equal-sized sections (the number of which is the same as the dimension of the output)
+	\item Finding the largest value in each section
+	\item Copying these max values to the output buffer.
+\end{itemize}
 
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.9\textwidth]{predictions}
-  \caption{Test figure}
+The result is that from a list of rectangles with different sizes we can quickly get a list of corresponding feature maps with a fixed size. Note that the dimension of the RoI pooling output doesn’t actually depend on the size of the input feature map nor on the size of the region proposals. It’s determined solely by the number of sections we divide the proposal into. What’s the benefit of RoI pooling? One of them is processing speed. If there are multiple object proposals on the frame (and usually there’ll be a lot of them), we can still use the same input feature map for all of them. Since computing the convolutions at early stages of processing is very expensive, this approach can save us a lot of time. The diagram below shows the working of ROI pooling.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/rcnn3.png}
+	\caption{rcnn3}\label{fig:rcnn3}
 \end{figure}
-
-
-\blindtext
-
-\section{R-CNN model}
-\section{You Only Look Once model}
-
-\blindtext
-
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.9\textwidth]{predictions}
-  \caption{Test figure}
-\end{figure}
-
-
-\blindtext \cite{2}
-
-\chapter[Object detection in action]{Applying state-of-the-art CNNs to license plate recognition problem using preexisting implementations}
-
-\begin{table}[h]
-\centering % to center the table.
-\caption{This is a table}
-\begin{tabular}{@{}>{\itshape}ccc@{}}%since we have 3 characters we will have 3 columns and c stand for centered alignement
-  % \hline % this creates a horizantal line % instead of using this we prefer the booktabs
-  \toprule[1.5pt]
-  \head{Command} & \head{Declaration} & \head{Output} \\
-  \midrule
-  list files     & ls                 & some files \\%[10pt]% to lavrage extra space
-  change directoy     & cd                 & directory changed \\
-  remove files and directories     & rm -r                 & file removed \\
-  \bottomrule[1.5pt]
-
-\end{tabular}
-\end{table}
-
-\section{Introduction to the licence plate problem}
-\section{Discussing results}
-
-\blindtext \cite{2}
-
-\begin{table}[h]
-\centering % to center the table.
-\caption{This is a table}
-\begin{tabular}{@{}>{\itshape}ccc@{}}%since we have 3 characters we will have 3 columns and c stand for centered alignement
-  % \hline % this creates a horizantal line % instead of using this we prefer the booktabs
-  \toprule[1.5pt]
-  \head{Command} & \head{Declaration} & \head{Output} \\
-  \midrule
-  list files     & ls                 & some files \\%[10pt]% to lavrage extra space
-  change directoy     & cd                 & directory changed \\
-  remove files and directories     & rm -r                 & file removed \\
-  \bottomrule[1.5pt]
-
-\end{tabular}
-\end{table}
-
-\blindtext
-
-\chapter[Object detection in action again]{Applying state-of-the-art CNNs to license plate recognition problem using preexisting implementations}
-
-\section{brief implementations of both techniques}
-\blindtext
-
-\section{Integration of model in a desktop app}
-\blindtext
-
-\chapter{Real life applications}
-
-\blindtext
-
-\chapter*{Further imporvements}
-\addcontentsline{toc}{chapter}{Further imporvements}
-\blindtext
-
-\chapter*{Conclusion}
-\blindtext[5]
-\addcontentsline{toc}{chapter}{Conclusion}
+This will be the input to a classifier network, which is a copy of the pretrained backbone network we used to obtain the feature map, and which will be refered to as "Fast RCNN classifier network". This network will further branch out to a classification head and regression head. The loss function for the Fast-RCNN
+ network is defined in the same way as the RPN loss, Except for the significance of the variables. p_{i} is the predicted class scores for every class of objects we want to detect and p_{i}^* is the actual score. t_{i} and t_{i}^* are the predicted co-oridinates and actual co-ordinates. The ground-truth label p_{i}^* is 1 for a certain class of objects if the reigon outputed by the ROI layer contains that object and 0 if it does not.
+\subsection{Faster RCNN training}
+For training the entire model there must be a well defined loss function which encapsulates all of the losses mentioned before. It can be considered as an estimation for
+error in the model, regardless of where the error occures. The total loss is defined as nothing more than the sum of both losses (RPN loss and Fast RCNN classifier network loss).
+$$
+Total loss = RPN loss + Fast RCNN classifier loss
+$$
+The training process would proceed using the same optimization and regularization techniques discussed earlier.
