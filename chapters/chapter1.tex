@@ -1,5 +1,5 @@
 \chapter{Feed-Forward neural networks}
-To understand the technique used in this report, it is necessary to understand basic neural networks functionning.
+To understand the technique used in this report, it is necessary to understand basic neural networks functioning.
 Given a scenario with a training set of labeled data $(\textbf{x}, \textbf{y})$, where $\textbf{x}$ denotes the training example
 composed of multiple features, say $\textbf{x} = \{x_{1}, x_{2}, \ldots, x_{n}\}$, and \textbf{y} the corresponding label.
 Let's introduce the idea of `perceptron'. \\
@@ -12,7 +12,7 @@ Assume at the university's admission office the students are evaluated with two 
   \caption{test vs grades }\label{fig:perceptron}
 \end{figure}
 
-The data on the figure can be nicely seperated with a line, where most students above the line get accepted and most students under the line get rejected, see \cref{fig:line}. Therefore this line is going to be our model. \\
+The data on the figure can be nicely separated with a line, where most students above the line get accepted and most students under the line get rejected, see \cref{fig:line}. Therefore this line is going to be our model. \\
 The model makes a couple of mistakes since there are a few blue points that are under the line and few over the line, but they are considered as noise and add no new information to our model. Now, the natural question that arises: how do we find the line ?
 
 \begin{figure}[htbp]
@@ -21,11 +21,11 @@ The model makes a couple of mistakes since there are a few blue points that are 
   \caption{seperating line}\label{fig:line}
 \end{figure}
 
-We start by labeling the axies $\textbf{x} = \{x_{1}, x_{2}\}$.
-The boundering line seperating the students has a linear equation
+We start by labeling the axis $\textbf{x} = \{x_{1}, x_{2}\}$.
+The boundary line separating the students has a linear equation
 specifically: $2x_{1} + x_{2} - 18 = 0$.
-Ploting the grades in the equation gives rise to a score, if the score is poitive --the student
-gets ploted in above the line--, the student gets accepted with otherwise not. This is called a prediction.\\
+Plotting the grades in the equation gives rise to a score, if the score is positive --the student
+gets plotted in above the line--, the student gets accepted with otherwise not. This is called a prediction.\\
 
 In a more general case, our boundary will be an equation of the following form:
 
@@ -49,7 +49,7 @@ Where $\textbf{w} = \{w_{1}, w_{2}\}$. We refer to $\textbf{x}$ as the input, $\
   \end{dcases*}
 \end{equation}
 
-and the goal of the algorithm is to have \mbox{\boldmath{$\hat{y}$}} resembling \mbox{\boldmath{$y$}} as closely as possible. Reorgnizing the equations in a graph and generalizing, gives rise to \cref{fig:neuron}. Here the bias is consider as a dummy input with value 1 to the Perceptron with weight b.
+and the goal of the algorithm is to have \mbox{\boldmath{$\hat{y}$}} resembling \mbox{\boldmath{$y$}} as closely as possible. Reorganizing the equations in a graph and generalizing, gives rise to \cref{fig:neuron}. Here the bias is consider as a dummy input with value 1 to the Perceptron with weight b.
 
 % \afterpage{\cleardoublepage}
 \begin{figure}[H]
@@ -78,13 +78,13 @@ and the goal of the algorithm is to have \mbox{\boldmath{$\hat{y}$}} resembling 
 % Instead of returning 0 or 1, the sigmoid function returns the probability of an event occuring, thus in our example the sigmoid function would output
 % the probability of a student getting accepted or rejected, which can be expressed as the the conditional probability $p(y=1 | x) = \sigma(w\cdot x +
 % b)$. There several other activation functions that can be used depending on the problem at hand. For example if a neural network is used to predict
-% continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choise is the linear activation
+% continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choice is the linear activation
 % funciton, which is defined as: $f(x) = x$.
 
 
 \section{Cost function}\label{cost}
 
-In order to estimate the accuracy of the algorithm, or otherwise stated determine how well a certain prediction given by the algorithm is, we may establish a cost function, which measures the error the algorithm makes on some prediction (cost function is ofter refered to as error function). There are more that one choise for such a function. \Cref{equ:mse} can be used, it is called ``The Mean Squared Error''.
+In order to estimate the accuracy of the algorithm, or otherwise stated determine how well a certain prediction given by the algorithm is, we may establish a cost function, which measures the error the algorithm makes on some prediction (cost function is often referred to as error function). There are more that one choice for such a function. \Cref{equ:mse} can be used, it is called ``The Mean Squared Error''.
 
 \begin{equation}
   \label{equ:mse}
@@ -105,16 +105,16 @@ Another way of defining a cost function is using the ``The Maximum Likelihood Es
   L(w, b) = p(y^{(1)}, y^{(2)}, \ldots, y^{(n)} | x^{(1)}, \ldots, x^{(n)}) = \prod_{i=1}^{n} p(y^{(i)}|x^{(i)})
 \end{equation}
 
-where $x^{(i)}$, $y^{(i)}$ represent the $i^{th}$ training example and label respectively. Thus by maximizing the joint probability, or respectively minimizing the $-\log$ of the likelihood, we can get an estimate of the parameters $w \ and \ b $. Now, in our worked example, the neural network can be treated as a random variable having a Birnoulli distribution, therefore \cref{equ:likelihood} can be rewritten as follows:
+where $x^{(i)}$, $y^{(i)}$ represent the $i^{th}$ training example and label respectively. Thus by maximizing the joint probability, or respectively minimizing the $-\log$ of the likelihood, we can get an estimate of the parameters $w \ and \ b $. Now, in our worked example, the neural network can be treated as a random variable having a Bernoulli distribution, therefore \cref{equ:likelihood} can be rewritten as follows:
 
 \begin{equation}
   \label{equ:b_likelihood}
   L(w, b) = - \sum_{i = 1}^{n} y_i \log(\hat{y}) + (1 - y) \log(1 - \hat{y}).
 \end{equation}
 
-\Cref{equ:b_likelihood} is usually the cost function used for Bernoulli distributed labelled data. It is ofter refered to as \textbf{binary cross-entropy} or BCE for short.
+\Cref{equ:b_likelihood} is usually the cost function used for Bernoulli distributed labeled data. It is often referred to as \textbf{binary cross-entropy} or BCE for short.
 
-For multi-class classification (predicting multiple classes, say $k$ classes), a similar idea can used considering a multinoulli distribution on the dataset where $p(y | \textbf{x}) = \prod_{i = 1}^{k} p_i^{[y=i]}$, where $[y = i]$ evaluates to 1 if $x = i$, 0 otherwise. This leads to following cost function using MLE
+For multi-class classification (predicting multiple classes, say $k$ classes), a similar idea can used considering a multinoulli distribution on the data set where $p(y | \textbf{x}) = \prod_{i = 1}^{k} p_i^{[y=i]}$, where $[y = i]$ evaluates to 1 if $x = i$, 0 otherwise. This leads to following cost function using MLE
 
 \begin{equation}
   \label{equ:m_likelihood}
@@ -131,13 +131,13 @@ The gradient of a differentiable function $f: \mathbb{R}^n \longrightarrow \math
 \end{equation}
 
 It is a well known result that, given a point $x \in \mathbb{R}^n$, the gradient at that point the direction of steepest ascent. Given that $f$ is differentiable at $x$, the vector $-\nabla f(x)$ indicates the direction of steepest descent of the function $f$ at the point $x$.
-In order to obtain the minimum value of the function, the gradient descent strategy tells us to start at a given $x_0 \in \mathbb{R}^n$, calculatethe value of $\nabla f(x_0)$, and then proceed to calculate a new point $x_1 = x_0 − \alpha \nabla f(x_0)$, where $\alpha > 0$ is called the \textbf{learning rate}. We then repeat this process, creating a sequence $\{ x_i \}$ defined by our initial choice of $x_0$, the learning rate $\alpha$, and the rule: $x_{i + 1} = x_{i} − \alpha \nabla f(x_0)$  . This sequence continues until we approach a region close to our desired minimum.
-The method of gradient descent when taken continuously over infinitesimally small increments (that is, taking the limit $\alpha \rightarrow 0$) usually converges to a local minimum. However, depending on the location of the initial $x_0$, the local minimum achieved may not be the global minimum of the function. Furthermore, since when carrying out calculations on an unknown function we must take discrete steps (which vary in length depending on the learning rate), we are not even guaranteed a local minimum but rather may oscillate close to one, or even ’jump’ past it altogether if the learning rate is too big. Still, even with these possible complications, gradient descent is a surprisingly successful method for many real life applications and is the most standard method of training for feedforward neural networks and many other machine learning algorithms.
+In order to obtain the minimum value of the function, the gradient descent strategy tells us to start at a given $x_0 \in \mathbb{R}^n$, calculate the value of $\nabla f(x_0)$, and then proceed to calculate a new point $x_1 = x_0 − \alpha \nabla f(x_0)$, where $\alpha > 0$ is called the \textbf{learning rate}. We then repeat this process, creating a sequence $\{ x_i \}$ defined by our initial choice of $x_0$, the learning rate $\alpha$, and the rule: $x_{i + 1} = x_{i} − \alpha \nabla f(x_0)$  . This sequence continues until we approach a region close to our desired minimum.
+The method of gradient descent when taken continuously over infinitesimally small increments (that is, taking the limit $\alpha \rightarrow 0$) usually converges to a local minimum. However, depending on the location of the initial $x_0$, the local minimum achieved may not be the global minimum of the function. Furthermore, since when carrying out calculations on an unknown function we must take discrete steps (which vary in length depending on the learning rate), we are not even guaranteed a local minimum but rather may oscillate close to one, or even ’jump’ past it altogether if the learning rate is too big. Still, even with these possible complications, gradient descent is a surprisingly successful method for many real life applications and is the most standard method of training for feed-forward neural networks and many other machine learning algorithms.
 Given that our cost function indicates how poorly our neural network approximates a given function, by calculating the gradient of the cost function with respect to the weights and biases of the network and adjusting these parameters in the direction opposite to the gradient, we will decrease our error and therefore lead us closer to an adequate network (in most cases) see .
 
 \subsection{Gradient calculation}\label{sec:cal_gradient}
 
-Before applying the gradient descent technique, we can clearly see that the an output of 0 or 1 is problematic since the derivatives would be 0. Therefore the gradient descent technique will not work. To remedy this, following the MLE, a Birnoulli distribution has been defined on $y$, therefore the neural net needs to predict $\yhat = p(y = 1 | x) = \sigma (x)$. For this number to be a valid probability, it must lie in the interval $[0, 1]$. \\
+Before applying the gradient descent technique, we can clearly see that the an output of 0 or 1 is problematic since the derivatives would be 0. Therefore the gradient descent technique will not work. To remedy this, following the MLE, a Bernoulli distribution has been defined on $y$, therefore the neural net needs to predict $\yhat = p(y = 1 | x) = \sigma (x)$. For this number to be a valid probability, it must lie in the interval $[0, 1]$. \\
 A good approach would ensure the existence of a strong gradient whenever the model has the wrong answer. And for consistency with the perceptron's decision rule (\cref{y_hat}), a very positive linear combination of the input $x$ has to have a probability close to 1 and vise versa (see \cref{fig:step_sigmoid}), otherwise
 
 \begin{equation}
@@ -150,7 +150,7 @@ This approach is based on the sigmoid function:
  \sigma(x) = \frac{1}{1 + e^{-x}}
  $$
 
-This function is suitable for the problem at hand, namely binary classification. However, depending on the output $\yhat$ other functions might be used. For example if a neural network is used to predict continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choise is the linear activation function, which is defined as: $f(x) = x$. Another example is the multi-class classification, where a multinoulli distribution is defined over the training data. The function used is the softmax defined as
+This function is suitable for the problem at hand, namely binary classification. However, depending on the output $\yhat$ other functions might be used. For example if a neural network is used to predict continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choice is the linear activation function, which is defined as: $f(x) = x$. Another example is the multi-class classification, where a multinoulli distribution is defined over the training data. The function used is the softmax defined as
 
 $$
 softmax(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}
@@ -161,7 +161,7 @@ Where $x_i$ represents a training example from class $i$. Here the output consis
 \begin{figure}[!htpb]
   \centering
   \includegraphics[width=\textwidth]{figs/step_sigmoid.png}
-  \caption[sigmoid vs step function]{sigmoid vs step function. The two plots clearly showcast the continuiuty of the sigmoid.}\label{fig:step_sigmoid}
+  \caption[sigmoid vs step function]{sigmoid vs step function. The two plots clearly show cast the continuity of the sigmoid.}\label{fig:step_sigmoid}
 \end{figure}
 
 Now, let us apply the gradient descent technique to our network. Our goal is to calculate the gradient of $L$ at a point $x = (x_1, \ldots, x_n)$ given by the partial derivatives, see \cref{equ:gradient}. In addition, the property \cref{equ:additivity} now become important. In fact, we are only going to calculate the value of $\nabla L_x$ for a given labeled data point and then add the values of the gradient together, see below.
@@ -170,7 +170,7 @@ Now, let us apply the gradient descent technique to our network. Our goal is to 
   \nabla L(w, b) = \nabla (\sum_{i = 1}^{n} L_x) = \sum_{i = 1}^{n} \nabla L_{x_i}.
 \end{equation}
 
-The error produced by each point is simply: $ L_x = -y \log (\hat{y}) - (1 - y) \log (1 - \hat{y})$. In order to calcualte the derivative of this error with respect to the weights, we'll first calculate $ \frac{\partial}{\partial w_j} \hat{y}$, where $ \hat{y} = \sigma (w \cdot x + b)$.
+The error produced by each point is simply: $ L_x = -y \log (\hat{y}) - (1 - y) \log (1 - \hat{y})$. In order to calculate the derivative of this error with respect to the weights, we'll first calculate $ \frac{\partial}{\partial w_j} \hat{y}$, where $ \hat{y} = \sigma (w \cdot x + b)$.
 
 \begin{align*}
   \frac{\partial}{\partial w_j} \hat{y} &= \frac{\partial}{\partial w_j} \sigma (w \cdot x + b) \\
@@ -204,13 +204,13 @@ Therefore, since the gradient descent step simply consists in subtracting a mult
 \end{align}
 
 \section{Neural network architecture}
-In our work example, the target function was a simple linear function. However, in real world situations the input data is much more complex and often cannot be seperated with a line. That is where neural nets shine. Neural networks also refered to as \textbf{feedforward} neural nets or \textbf{multilayer perceptron} (MLPs) are as the name indicates are stacks of perceptrons, where each \textbf{unit} receives the input $x$, calcualtes the inner product with a set of weights and apply a non-linearty to the result, then these results are fed to a next layer of units that does the same calculations and so on. The overall length of the chain gives the \textbf{depth} of the model. The final layer of such a network is called the \textbf{the output layer}, whereas the intermediate layer are refered to as \textbf{hidden layers}. The goal of the feedforward network is to approximate some function $f^*$. The training example specify directly what the output layer must do at each point $x$; it must produce a value that is close to $y$. Therefore, the function computed after the linear combination is important. This function and the functions used in the hidden layers are refered to as \textbf{activation functions}. For example for a classifier, the fucntion maps an input $x$ to a category $y$, a natural choise of activation is the sigmoid; whereas in a regression problem, where the output is continuous non-bounded that takes values in the interval $]-\infty, +\infty[$, a more clever choise is the linear activation funciton, which is defined as: $f(x) = x$.
+In our work example, the target function was a simple linear function. However, in real world situations the input data is much more complex and often cannot be separated with a line. That is where neural nets shine. Neural networks also referred to as \textbf{feedforward} neural nets or \textbf{multilayer perceptron} (MLPs) are as the name indicates are stacks of perceptrons, where each \textbf{unit} receives the input $x$, calculates the inner product with a set of weights and apply a non-linearity to the result, then these results are fed to a next layer of units that does the same calculations and so on. The overall length of the chain gives the \textbf{depth} of the model. The final layer of such a network is called the \textbf{the output layer}, whereas the intermediate layer are referred to as \textbf{hidden layers}. The goal of the feed-forward network is to approximate some function $f^*$. The training example specify directly what the output layer must do at each point $x$; it must produce a value that is close to $y$. Therefore, the function computed after the linear combination is important. This function and the functions used in the hidden layers are referred to as \textbf{activation functions}. For example for a classifier, the function maps an input $x$ to a category $y$, a natural choice of activation is the sigmoid; whereas in a regression problem, where the output is continuous non-bounded that takes values in the interval $]-\infty, +\infty[$, a more clever choice is the linear activation function, which is defined as: $f(x) = x$.
 The figure below depicts the architecture described above.
 
 \begin{figure}[!htpb]
   \centering
   \includegraphics[width=\textwidth]{figs/nn.png}
-  \caption[A visual representation of a feedforward network]{A visual representation of a feedforward network which approximates some function $f : \mathbb{R}^n \longrightarrow \mathbb{R}^m$ by
+  \caption[A visual representation of a feed-forward network]{A visual representation of a feed-forward network which approximates some function $f : \mathbb{R}^n \longrightarrow \mathbb{R}^m$ by
     computing the function $f^*(x) = (f^*_1(x), \ldots, f^*_m(x))$. In this approach, the network is shown as a
     directed weighted graph. Here $x = (x_1, \ldots, x_n)$}\label{fig:ann}
 \end{figure}
@@ -237,15 +237,15 @@ $$
 f(x) = \sigma(w_N\sigma(\ldots\sigma (w_2 \sigma(w_1 \cdot x + b_1) + b_2)) + b_N)
 $$
 
-\section{Backpropagation}
-In order to train a neural network, the same techniques are used as in \cref{sec:cal_gradient}. First we difine a cost function (which is the same as in the perceptron algorithm \cref{equ:b_likelihood},but with a much more complex $\yhat$), we calculate the feedforward pass (we calculate the output $\yhat$), and then calculate the the gradient of the cost function $L$ with respect to every single weight and bias in the network, we get the following gradient vector $\nabla L = (\ldots, \frac{\partial}{\partial w^l_{i, j}} L, \ldots)$. Then applying the gradient step look likes
+\section{Back-propagation}
+In order to train a neural network, the same techniques are used as in \cref{sec:cal_gradient}. First we define a cost function (which is the same as in the perceptron algorithm \cref{equ:b_likelihood},but with a much more complex $\yhat$), we calculate the feed-forward pass (we calculate the output $\yhat$), and then calculate the the gradient of the cost function $L$ with respect to every single weight and bias in the network, we get the following gradient vector $\nabla L = (\ldots, \frac{\partial}{\partial w^l_{i, j}} L, \ldots)$. Then applying the gradient step look likes
 
 \begin{align*}
   w^{\prime l}_{i, j} &= w^l_{i, j} - \alpha  \frac{\partial}{\partial w^l_{i, j}} L\\
   b^{\prime l}_j &= b_j - \alpha \frac{\partial}{\partial b^l_j} L
 \end{align*}
 
-The big challenge of applying gradient descent to neural networks is calculating these partial derivatives.  This is where backpropagation comes in. This algorithm first tells us how to calculate these values for the last layer of connections, and with these results then inductively goes "backwards" through the network, calculating the partial derivatives of each layer until it reaches the first layer of the network. Hence the name "backpropagation".
+The big challenge of applying gradient descent to neural networks is calculating these partial derivatives.  This is where back-propagation comes in. This algorithm first tells us how to calculate these values for the last layer of connections, and with these results then inductively goes "backwards" through the network, calculating the partial derivatives of each layer until it reaches the first layer of the network. Hence the name "back-propagation".
 
 For the purpose of this section it is useful to consider the values of each layer before the activation function step. Consider
 
@@ -300,13 +300,13 @@ calculate all the $\delta^l_j$ ’s, given that we know what the values of $\del
 
 \section{Problems related to neural nets}
 
-Neural networks are extremely powerful function approximators, but if care is not taken during the design of architecture since there are many parameter one can tune (depth, number of units in each layer, \ldots). Therefore, a complex design namely high number of units in each layer and a deep network can lead to \textbf{overfitting}. Overfitting is the case where the overall cost is really small (The network is doing very well on the training set) but the generalization of the model to unseen data is poor and unreliable. There are many solutions proposed to break this effect such as dropout which consists of randomly zeroing the output of some units in each layer to force the algorithm to take different routes through the network and better generalize. \\
+Neural networks are extremely powerful function approximators, but if care is not taken during the design of architecture since there are many parameter one can tune (depth, number of units in each layer, \ldots). Therefore, a complex design namely high number of units in each layer and a deep network can lead to \textbf{overfitting}. Over-fitting is the case where the overall cost is really small (The network is doing very well on the training set) but the generalization of the model to unseen data is poor and unreliable. There are many solutions proposed to break this effect such as dropout which consists of randomly zeroing the output of some units in each layer to force the algorithm to take different routes through the network and better generalize. \\
 Another famous problem neural nets suffer from is \textbf{local minimum} problem, where the gradient descent optimizer might converge to a local minimum rather than the global one. But as deep learning is evolving, we now understand that at higher dimensions the chance of getting in such situation is very unlikely due to tremendous number of dimensions deep networks deals with. \\
-Another issue in deep neural nets is the \textbf{vanishing gradients}. As we learned from backpropagation, each of the neural network's weights receive an update proportional to the partial derivative of the error function with respect to the current weight in each iteration of training. The problem is that in some cases, the gradient will be vanishingly small, effectively preventing the weight from changing its value. In the worst case, this may completely stop the neural network from further training. As one example of the problem cause, traditional activation functions such as the sigmoid function have gradients in the range (0, 1), and backpropagation computes gradients by the chain rule. This has the effect of multiplying $n$ of these small numbers to compute gradients of the "front" layers in an N-layer network, meaning that the gradient decreases exponentially with N while the front layers train very slowly.
+Another issue in deep neural nets is the \textbf{vanishing gradients}. As we learned from backp-ropagation, each of the neural network's weights receive an update proportional to the partial derivative of the error function with respect to the current weight in each iteration of training. The problem is that in some cases, the gradient will be vanishingly small, effectively preventing the weight from changing its value. In the worst case, this may completely stop the neural network from further training. As one example of the problem cause, traditional activation functions such as the sigmoid function have gradients in the range (0, 1), and back-propagation computes gradients by the chain rule. This has the effect of multiplying $n$ of these small numbers to compute gradients of the "front" layers in an N-layer network, meaning that the gradient decreases exponentially with N while the front layers train very slowly.
 To remedy this problem other activation functions might be used in the hidden layers. The behavior of the hidden layers is not directly
-specified by the training data. The learning algorithm must decide how to use those layers to produce the desired output, but the training data do not say what each individual layer should do. Instead, the learning algorithm must decide how to use these layers to best implement an approximation of $f$. Therefore the choise of the activation function in those layers is irrelevant, which makes the use of other activations possible. Many functions have been proposed to escape the trap of vanishing gradients, namely the ReLU function is of popularity in deep learning. The ReLU stands for rectified linear unit defined as $ReLU(x) = \max (0, x)$.
+specified by the training data. The learning algorithm must decide how to use those layers to produce the desired output, but the training data do not say what each individual layer should do. Instead, the learning algorithm must decide how to use these layers to best implement an approximation of $f$. Therefore the choice of the activation function in those layers is irrelevant, which makes the use of other activation possible. Many functions have been proposed to escape the trap of vanishing gradients, namely the ReLU function is of popularity in deep learning. The ReLU stands for rectified linear unit defined as $ReLU(x) = \max (0, x)$.
 
 \section{batch and stochastic gradient descent}
 
-Batch gradient descent is just anoter name for the gradient descent discussed so far. It involves calculations over the full training set to take a single step as a result of which it is very slow on very large training data due to the size of the weight matrices that take up large memory portions. Thus it become very computationally expensive to do batch GD. One can take advantage of the property mentioned on \cref{cost}, \cref{equ:additivity}. Therefore, instead going through the entire dataset at each iteration we select a few elements from the
-training set, commonly selected by randomly sampling from all the available labeled data, calculate the gradient, update the network's weights and repeat the process until the network arrives at satisfactory results. The gradients computations are faster as there is much fewer data to manipulate in a single time. This technique is refered to as \textbf{stochastic} gradient descent. One downside though of SGD is, once it reaches close to the minimum value then it doesn’t settle down, instead bounces around which gives us a good value for model parameters but not optimal which can ve solved by reducing the learning rate at each step which can reduce the bouncing and SGD might settle down at global minimum after some time.
+Batch gradient descent is just another name for the gradient descent discussed so far. It involves calculations over the full training set to take a single step as a result of which it is very slow on very large training data due to the size of the weight matrices that take up large memory portions. Thus it become very computationally expensive to do batch GD. One can take advantage of the property mentioned on \cref{cost}, \cref{equ:additivity}. Therefore, instead going through the entire data-set at each iteration we select a few elements from the
+training set, commonly selected by randomly sampling from all the available labeled data, calculate the gradient, update the network's weights and repeat the process until the network arrives at satisfactory results. The gradients computations are faster as there is much fewer data to manipulate in a single time. This technique is referred to as \textbf{stochastic} gradient descent. One downside though of SGD is, once it reaches close to the minimum value then it does not settle down, instead bounces around which gives us a good value for model parameters but not optimal which can be solved by reducing the learning rate at each step which can reduce the bouncing and SGD might settle down at global minimum after some time.
