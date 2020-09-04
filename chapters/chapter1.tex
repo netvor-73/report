@@ -114,6 +114,13 @@ where $x^{(i)}$, $y^{(i)}$ represent the $i^{th}$ training example and label res
 
 \Cref{equ:b_likelihood} is usually the cost function used for Bernoulli distributed labelled data. It is ofter refered to as \textbf{binary cross-entropy} or BCE for short.
 
+For multi-class classification (predicting multiple classes, say $k$ classes), a similar idea can used considering a multinoulli distribution on the dataset where $p(y | \textbf{x}) = \prod_{i = 1}^{k} p_i^{[y=i]}$, where $[y = i]$ evaluates to 1 if $x = i$, 0 otherwise. This leads to following cost function using MLE
+
+\begin{equation}
+  \label{equ:m_likelihood}
+  L(w, b) = - \sum_{j = 1}^k \sum_{i = 1}^{n} y_{i, j} \log(\hat{y}_{i, j}).
+\end{equation}
+
 \section{Gradient descent}
 In order to minimize the cost function we rely on optimization algorithms from numerical methods as it is unpractical to solve manually. The technique used in deep learning is the gradient descent. \\
 The gradient of a differentiable function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ at a point $x = (x_1, \ldots, x_n) \in \mathbb{R}^n$ is a vector in $\mathbb{R}^n$ of the form
@@ -143,7 +150,13 @@ This approach is based on the sigmoid function:
  \sigma(x) = \frac{1}{1 + e^{-x}}
  $$
 
-This function is suitable for the problem at hand, namely binary classification. However, depending on the output $\yhat$ other functions might be used. For example if a neural network is used to predict continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choise is the linear activation function, which is defined as: $f(x) = x$. More on that in section.
+This function is suitable for the problem at hand, namely binary classification. However, depending on the output $\yhat$ other functions might be used. For example if a neural network is used to predict continuous non-bounded function that takes values in the interval $]-\infty, +\infty[$, then a more clever choise is the linear activation function, which is defined as: $f(x) = x$. Another example is the multi-class classification, where a multinoulli distribution is defined over the training data. The function used is the softmax defined as
+
+$$
+softmax(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}
+$$
+
+Where $x_i$ represents a training example from class $i$. Here the output consists of $j$ outputs rather that a single one. See \cref{fig:ann} to illustrate the output layer.
 
 \begin{figure}[!htpb]
   \centering
@@ -199,7 +212,7 @@ The figure below depicts the architecture described above.
   \includegraphics[width=\textwidth]{figs/nn.png}
   \caption{A visual representation of a feedforward network which approximates some function $f : \mathbb{R}^n \longrightarrow \mathbb{R}^m$ by
     computing the function $f^*(x) = (f^*_1(x), \ldots, f^*_m(x))$. In this approach, the network is shown as a
-    directed weighted graph. Here $x = (x_1, \ldots, x_n)$}
+    directed weighted graph. Here $x = (x_1, \ldots, x_n)$}\label{fig:ann}
 \end{figure}
 
 For notation, set $w^n_{a, b} \in \mathbb{R}$ as the weight between the $a^th$ unit in the $(n - 1)^th$ layer with $k$ units to the $b^th$ unit in the $n^th$ layer with $j$ units.
