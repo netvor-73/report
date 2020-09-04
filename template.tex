@@ -40,40 +40,24 @@
 \begin{document}
 \frontmatter
 %the entire document will be divided into chapters only.
-% \chapter*{Abstract}
-% \blindtext
-% \addcontentsline{toc}{chapter}{Abstract}
-% \nopagebreak
-%
-% \chapter*{Acknowledgement}
-% \blindtext
-% \addcontentsline{toc}{chapter}{Acknowledgement}
-%
-% \tableofcontents
-% \addcontentsline{toc}{chapter}{\contentsname}
-% \listoffigures
-% \addcontentsline{toc}{chapter}{\listfigurename}
-% \listoftables
-% \addcontentsline{toc}{chapter}{\listtablename}
-% \addtocontents{toc}{\bigskip}
+\chapter*{Abstract}
+\blindtext
+\addcontentsline{toc}{chapter}{Abstract}
+\nopagebreak
 
-\mainmatter
+\chapter*{Acknowledgement}
+\blindtext
+\addcontentsline{toc}{chapter}{Acknowledgement}
 
-\include{chapters/chapter1}
-\include{chapters/chapter2}
-\include{chapters/chapter3}
-
-\backmatter
-\nocite{*}
-\bibliographystyle{plain}
-\bibliography{tex}
-
-\appendix
-\cleardoublepage
+\tableofcontents
+\addcontentsline{toc}{chapter}{\contentsname}
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
 \addtocontents{toc}{\bigskip}
-\addcontentsline{toc}{part}{Appendix}
 
-\chapter{Symbols}
+\chapter{List of Abbreviations}
 
 \begin{description}
 
@@ -82,6 +66,30 @@
 
 \end{description}
 
-%you just put a definition list.
+\mainmatter
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+\blindtext[5]
+
+\include{chapters/chapter1}
+\include{chapters/chapter2}
+\include{chapters/chapter3}
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+\blindtext[5]
+
+
+\backmatter
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{tex}
+
+\appendix
+\clearpage
+\addtocontents{toc}{\bigskip}
+\addcontentsline{toc}{part}{Appendix}
 
 \end{document}
