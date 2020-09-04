@@ -100,7 +100,7 @@ Rearranging each vector as a matrix, the relationship between the nodes in each 
 element of the weight matrix is used exactly once when computing the output of a layer. It is multiplied by one element of the input and
 then never revisited. As a synonym for parameter sharing, one can say that a network has tied weights, because the value of the
 weight applied to one input is tied to the value of a weight applied elsewhere \cref{fig:fully_connected}.
-That is the reason, traditional nets are referred as to Fully connected networks or Dense networks.\\
+That is the reason, traditional nets are referred as to Fully connected (FC) networks or Dense networks.\\
 
 In a convolutional neural net, each member of the kernel is used at every position
 of the input (except perhaps some of the boundary pixels, depending on the
@@ -268,7 +268,158 @@ are of different sizes and shapes. Therefore CNNs requires a fixed sized input d
 through the network, we usually pass batches of images which are just stacks of images. But in order to do that, all the images have to have the
 same width and height. So, we have to pick an image size and resize all of our images to that same size before doing anything else.
 
+\section{Case studies}
+
+So why look at case studies? In the few last chapters, we learned about the basic building blocks such as convolutional layers, pooling layers and fully connected layers of conv nets. It turns out a lot of the past few years of computer vision research has been on how to put together these basic building blocks to form effective convolutional neural networks. One of the best ways to get intuition on how to build conv nets is to read or to see other examples of effective conv nets, and it turns out that a net neural network architecture that works well on one computer vision task often works well on other tasks as well.
+
+\subsection{VGG-16}
+
+VGG16 is a convolutional neural network model proposed by K. Simonyan and A. Zisserman from the University of Oxford in the paper “Very Deep Convolutional Networks for Large-Scale Image Recognition”. The model achieves 92.7\% top-5 test accuracy in ImageNet, which is a dataset of over 14 million images belonging to 1000 classes. It was one of the famous model submitted to ILSVRC-2014. It makes the improvement over AlexNet by replacing large kernel-sized filters (11 and 5 in the first and second convolutional layer, respectively) with multiple $3 \times 3$ kernel-sized filters one after another. VGG16 was trained for weeks and was using NVIDIA Titan Black GPU’s. see \cref{fig:vgg16}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/vgg16.png}
+	\caption{vgg 16}\label{fig:vgg16}
+\end{figure}
+
+The ConvNet configurations are outlined in \cref{fig:vgg16_2}. The nets are referred to their names (A-E). All configurations follow the generic design present in architecture and differ only in the depth: from 11 weight layers in the network A (8 conv. and 3 FC layers) to 19 weight layers in the network E (16 conv. and 3 FC layers). The width of conv. layers (the number of channels) is rather small, starting from 64 in the first layer and then increasing by a factor of 2 after each max-pooling layer, until it reaches 512. see \cref{fig:vgg16_2}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figs/vgg16_2.png}
+	\caption{vgg 16 config}\label{fig:vgg16_2}
+\end{figure}
+
+\subsection{Res-Net}
+
+ResNet, short for Residual Networks is a classic neural network used as a backbone for many computer vision tasks. This model was the winner of ImageNet challenge in 2015. The fundamental breakthrough with ResNet was it allowed us to train extremely deep neural networks with 150+layers successfully. Prior to ResNet training very deep neural networks was difficult due to the problem of vanishing gradients.
+
+AlexNet, the winner of ImageNet 2012 and the model that apparently kick started the focus on deep learning had only 8 convolutional layers, the VGG network had 19 and Inception or GoogleNet had 22 layers and ResNet 152 had 152 layers.
+
+However, increasing network depth does not work by simply stacking layers together. Deep networks are hard to train because of the notorious vanishing gradient problem — as the gradient is back-propagated to earlier layers, repeated multiplication may make the gradient extremely small. As a result, as the network goes deeper, its performance gets saturated or even starts degrading rapidly. For this reason the creators of Res-Net introduced the idea of "Skip Connections"
+
+\subsubsection{Skip Connection}
+
+ResNet first introduced the concept of skip connection. \cref{fig:resnet1}. below illustrates skip connection. The figure on the left is stacking convolution layers together one after the other. On the right we still stack convolution layers as before but we now also add the original input to the output of the convolution block. This is called skip connection. We must note that the addition operation occures before the output goes through the ReLu function.
+The main two reasons why skip connections work are :
+
+\begin{itemize}
+  \item They mitigate the problem of vanishing gradient by allowing this alternate shortcut path for gradient to flow through
+  \item They allow the model to learn an identity function which ensures that the higher layer will perform at least as good as the lower layer, and not worse
+\end{itemize}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figs/resnet1.png}
+	\caption{resnet1}\label{fig:resnet1}
+\end{figure}
+
+\subsection{Inception}
+
+The Inception network was an important milestone in the development of CNN classifiers. Prior to its inception (pun intended), most popular CNNs just stacked convolution layers deeper and deeper, hoping to get better performance.The Inception network on the other hand, was complex (heavily engineered). It used a lot of tricks to push performance; both in terms of speed and accuracy. Its constant evolution lead to the creation of several versions of the network. The popular versions are : Inception v1, Inception v2, Inception v3, and Inception Res-Net. Each version is an iterative improvement over the previous one. Understanding the upgrades can help us to build custom classifiers that are optimized both in speed and accuracy.
+
+\subsubsection{Inception V1}
+The Problem addressed by the developers of this model is the extreme large variation in the size of the salient parts in the image. For instance, An image of a dog can have any of the forms shown in \cref{fig:inception1}. The area occupied by the dog is different in each image. This significant variation in the location of the relevant features of the object we wish to detect and classify requires choosing the right kernel size for the convolution operation, which becomes a complicated task. A larger kernel is preferred for information that is distributed more globally, and a smaller kernel is preferred for information that is distributed more locally. And considering the fact that very deep networks are prone to overfitting in addition to the difficulty they pose in performing back-propagation across the layers it goes without saying that naively stacking large convolution operations is computationally expensive and will not improve network performance on new data.
+
+As a solution, the authors of the original paper suggested the use of multiple filters of different sizes in one layer. Rendering The network "wider" rather than “deeper”.
+
+\Cref{fig:inception2} explains the core idea of this model. It performs convolution on an input, with 3 different sizes of filters $(1 \times 1, 3 \times 3, 5 \times 5)$. Additionally, max pooling is also performed. The outputs are concatenated and sent to the next inception layer.
+
+As stated before, deep neural networks are computationally expensive. To make it cheaper, the authors limit the number of input channels by adding an extra $1 \times 1$ convolution before the $3 \times 3$ and $5 \times 5$ convolutions. Though adding an extra operation may seem counterintuitive, $1 \times 1$ convolutions are far less expensive than $5 \times 5$ convolutions, and the reduced number of input channels also help (similar to the method used in mobilenet). Do note that however, the 1x1 convolution is introduced after the max pooling layer, rather than before. See \cref{fig:inception3}
+
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception1.png}
+	\caption{inception1}\label{fig:inception1}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception2.png}
+	\caption{inception2}\label{fig:inception2}
+\end{figure}
+
+Using the dimension reduced inception module, a neural network architecture was built. This was popularly known as GoogLeNet (Inception v1). The architecture is shown in \cref{fig:inception4}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception3.png}
+	\caption{inception3}\label{fig:inception3}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{figs/inception4.png}
+	\caption{inception4}\label{fig:inception4}
+\end{figure}
+
+GoogLeNet has 9 such inception modules stacked linearly. It is 22 layers deep (27, including the pooling layers). It uses global average pooling at the end of the last inception module.
+
+Needless to say, it is a pretty deep classifier. As with any very deep network, it is subject to the vanishing gradient problem.
+
+To prevent the middle part of the network from “dying out”, the authors introduced two auxiliary classifiers (The purple boxes in \cref{fig:inception4}). They essentially applied softmax to the outputs of two of the inception modules, and computed an auxiliary loss over the same labels. The total loss function is a weighted sum of the auxiliary loss and the real loss. Weight value used in the paper was 0.3 for each auxiliary loss. Needless to say, auxiliary loss is purely used for training purposes, and is ignored during inference.
+$$
+total\ loss = real\ loss + 0.3\  aux\ loss_1 + 0.3\  aux\ loss_2
+$$
+
+\subsection{Mobilenet}
+MobileNet is a CNN architecture model for used for object detection and image Classification, generally used in mobile applications.There exists a variety of models designed for the same purpose as well but the reason why MobileNet stand out is that it requires much less computation power to run or apply transfer learning to.This characteristic is what makes it optimal to run on embedded systems in general , computer systems without GPU or low computational efficiency, as well as Mobile devices which don't have the necessairy hardware to run more costly models. Needless to say, the use of Mobilenet  comes with a significant compromise in the accuracy of the results. It is also best suited for web browsers as browsers have limitation over computation,graphic processing and storage. Mobilenet architecture is distinguished by an essenstial features know as "Depthwise Separable Convolution".
+
+\subsubsection{Depthwise Separable Convolution}
+Before we get into the definition of "Depthwise Separable Convolution" we need to go over some aspects of the convolution operation. Let's consider an input matrix of shape $D_{f} \times D{f} \times M $ as shown in \cref{fig:dsc input}. If our input was an RGB image then M would be equal to 3. If we apply a convolution using a filter of shape $D_{k} \times D{k} \times M $ we would obtain an output of size $D_{G} \times D{G} \times 1 $ if we apply the same convolution using N filters of the same shape and concatenate the results we would obtain an output shape of $D_{G} \times D{G} \times N $, see \cref{fig:dsc conv1}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/dsc input.png}
+	\caption{Convolution input }\label{fig:dsc input}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/dsc conv1.png}
+	\caption{Convolution operation }\label{fig:dsc conv1}
+\end{figure}
+
+Since the multiplication operation is more expensive relative to the addition, let's consider the cost of the convolution operation with regards to the number of multiplications. For one convolution step for one kernal the number of multiplications is $D_{k} \times D_{k} \times M $, for and entire convolution step for one filter the number of multiplications is $D_{G} \times D_{G} \times D_{k} \times D_{k} \times M $ therefore when we account for N filters the number of multiplication for a convolutional layer is $D_{G}^{2} \times D_{k}^{2} \times M $
+With this in mind, we can introduce the concepts of "Depthwise Convolution" and "Pointwise convolution", which when put together yeild a " Deapthwise Separable Convolution ". Unlike simple convolution, Deapthwise Convolution applies convolution to single input channel at a time, using M filters of shape  $D_{k} \times D_{k} \times 1 $ see \cref{fig:dsc conv2}. Pointwise convolution applies N filters of shape $1 \times 1 \times M $ to the output of the Deapthwise convolution and by concatenating the results we obtain the same output shape as simple convolution, see \cref{fig:dsc conv3}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/dsc conv2.png}
+	\caption{Deapthwise Convolution }\label{fig:dsc conv2}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/dsc conv3.png}
+	\caption{Pointwise Convolution }\label{fig:dsc conv3}
+\end{figure}
+
+computing the number of multiplications for the entire process gives  $M \times D_{G}^{2} \times (D_{k}^{2}+N) $ Which is less than the cost of simple convolution. But to get a an understanding of how much computational power is reduced we should compute the ratio
+
+$$
+\frac{number\ of\ multiplications\ for\ DSC}{number\ of\ multiplications\ for\ simple\ conv}
+$$
+
+Which is found to be
+
+$$
+\frac{1}{N} + \frac{1}{D_{k}^2}
+$$
+
+By taking an example of $D_{k} = 3$ and $N = 1024$ we get a ratio of approximately $\frac{1}{9}$ which signifies a substantial decrease in computational requirements.
+
+\subsubsection{Mobilenet model}
+
+The Mobilenet model is composed of convolutional and Max Pool layers where the full structure is demonstrated in the tabel seen in \cref{fig:mobilenet table}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/mobilenet_table.png}
+	\caption{mobilenet tabel }\label{fig:mobilenet tabel}
+\end{figure}
 
 \section{Transfer learning}
 Usually training very deep networks from scratch is a very tedious task; huge datasets are required for the task to better generalize to real life situations. Modern CNNs usually take 2-3 weeks to train across multiple GPUs. However, it has been revealed that deep networks trained on natural images exhibits a curious phenomenon in common: on the first layer they learn general features similar to color blobs and edges. Such first layer features appear not to be \emph{specific} to a particular dataset or task, but \emph{general} in that they are applicable to many datasets and tasks \cite{Transfer}. This means it may be useful to transfer this knowledge to other similar tasks. This technique is refered to as \textbf{transfer learning}. Deep CNNs are good condidates for this task because they are usually trained on general tasks (like image classification of daily life objects) and have many adjustable layers. As \cite{Transfer} states the transferability of features decreases as the distance between the base task and target task increases, but that transferring features even from distant tasks can be better than using random features. A final surprising result is that initializing a network with transferred features from almost any number of layers can produce a boost to generalization that lingers even after ``fine-tuning'' to the target dataset. One of the strategies used when using transfer learning is refered to as \textbf{fine-tuning}.
-This simply means retraining the whole or parts of the pretrained CNN. This is done by retraining with the new dataset without changing the architecture or reinitialize the weights. The existing weight are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.  
+This simply means retraining the whole or parts of the pretrained CNN. This is done by retraining with the new dataset without changing the architecture or reinitialize the weights. The existing weight are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.
