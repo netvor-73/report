@@ -1,0 +1,99 @@
+\documentclass[a4paper, 12pt, oneside]{book}
+\usepackage{microtype} %used to manage hyphenations
+\usepackage[utf8]{inputenc}% for the accents
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{graphicx}
+\usepackage{afterpage}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{xspace}
+\usepackage{float} %to control the floating environments
+\usepackage{appendix}
+\usepackage[a4paper, inner=2.54cm, outer=2.54cm, top=2.54cm, bottom=2.54cm, bindingoffset=1cm]{geometry}
+\frenchspacing
+\renewcommand{\bibname}{References}
+\setcounter{tocdepth}{3}
+
+%temporary packages
+\usepackage[english]{babel}
+\usepackage{blindtext}
+% \usepackage{titlesec}
+%
+% \titleclass{\chapter}{straight}
+%using one half spacing between lines.
+\usepackage[onehalfspacing]{setspace}
+
+\usepackage{paralist}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\usepackage{array}
+\usepackage{booktabs}
+
+
+\newcommand{\head}[1]{\textbf{#1}}
+\newcommand{\yhat}{\hat{y}}
+\setlength{\abovetopsep}{10pt}
+\DeclareUnicodeCharacter{2212}{-}
+
+\begin{document}
+\frontmatter
+%the entire document will be divided into chapters only.
+\chapter*{Abstract}
+\blindtext
+\addcontentsline{toc}{chapter}{Abstract}
+\nopagebreak
+
+\chapter*{Acknowledgement}
+\blindtext
+\addcontentsline{toc}{chapter}{Acknowledgement}
+
+\tableofcontents
+\addcontentsline{toc}{chapter}{\contentsname}
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+\addtocontents{toc}{\bigskip}
+
+\chapter{List of Abbreviations}
+
+\begin{description}
+
+  \item[CNN] Convolutional neural networks
+  \item[ANN] Artifitial neural networks
+
+\end{description}
+
+\mainmatter
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+\blindtext[5]
+
+\include{chapters/chapter1}
+\include{chapters/chapter2}
+\include{chapters/chapter3}
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+\blindtext[5]
+
+
+\appendix
+\clearpage
+\addtocontents{toc}{\bigskip}
+% \addcontentsline{toc}{part}{Appendices}
+\addappheadtotoc
+\input{chapters/appendix}
+
+\backmatter
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{tex}
+
+
+\end{document}
