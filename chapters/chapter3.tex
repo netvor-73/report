@@ -42,7 +42,7 @@ an $((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$ di
 \subsection{Network design}\label{sub:net_design}\label{sec:network}
 
 The network is a series of convolutional and pooling layers chosen so that the network eventually maps the input image $W \times H \times 3$ to
-an output volume $S \times S \times ((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$. YOLO's convolutional layers down-sample the image by a factor of 32
+an output volume $S \times S \times ((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$. YOLO's convolutional layers down-sample the image by a factor of 32, 16, 8. The YOLOv3 network has therefore 3 outputs instead of one, but we will be focusing on only one as the same calculation happen at each scale. The exact architecture is discussed in appendix.
 Now, to train the convolutional neural network, we pick an image size of $416 \times 416$.
 This number has been chosen because we want an odd number of
 locations in our feature map so there is a single center cell.
