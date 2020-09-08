@@ -129,8 +129,7 @@ images, it is useful to detect edges in the first layer of a convolutional netwo
 The same edges appear more or less everywhere in the image, so it is practical to share parameters across the entire image. \\
 
 Convolution is not naturally equivariant to some other transformations, such as changes in the scale or rotation of an image. Other
-mechanisms are necessary for handling these kinds of transformations. To illustrate these principles in action, we shall use a hand picked
-filter that used to detect edges in a image, see below.
+mechanisms are necessary for handling these kinds of transformations (\cref{data_aug}). To illustrate these principles in action, we shall use a hand picked filter that used to detect edges in a image, see below.
 
 $$
 K = \begin{pmatrix}
@@ -270,7 +269,7 @@ same width and height. So, we have to pick an image size and resize all of our i
 
 \section{Case studies}
 
-So why look at case studies? In the few last chapters, we learned about the basic building blocks such as convolutional layers, pooling layers and fully connected layers of conv nets. It turns out a lot of the past few years of computer vision research has been on how to put together these basic building blocks to form effective convolutional neural networks. One of the best ways to get intuition on how to build conv nets is to read or to see other examples of effective conv nets, and it turns out that a net neural network architecture that works well on one computer vision task often works well on other tasks as well.
+So why look at case studies? In the few last chapters, we learned about the basic building blocks such as convolutional layers, pooling layers and fully connected layers of conv nets. It turns out a lot of the past few years of computer vision research has been on how to put together these basic building blocks to form effective convolutional neural networks, focusing on the \emph{object classification task}. One of the best ways to get intuition on how to build conv nets is to read or to see other examples of effective conv nets, and it turns out that a net neural network architecture that works well on one computer vision task often works well on other tasks as well. Indeed those same networks discussed in this section are used as feature extractors or otherwise called \textbf{backbones} for object detection networks since an object detection requires the classification of objects and their localization. Therefore, instead of training those networks from scratch they build upon those already good Classifiers, see \cref{tl}.
 
 \subsection{VGG-16}
 
@@ -367,33 +366,33 @@ $$
 MobileNet is a CNN architecture model for used for object detection and image Classification, generally used in mobile applications.There exists a variety of models designed for the same purpose as well but the reason why MobileNet stand out is that it requires much less computation power to run or apply transfer learning to.This characteristic is what makes it optimal to run on embedded systems in general , computer systems without GPU or low computational efficiency, as well as Mobile devices which don't have the necessary hardware to run more costly models. Needless to say, the use of Mobilenet  comes with a significant compromise in the accuracy of the results. It is also best suited for web browsers as browsers have limitation over computation,graphic processing and storage. Mobilenet architecture is distinguished by an essential features know as "Depth-wise Separable Convolution".
 
 \subsubsection{Depthwise Separable Convolution}
-Before we get into the definition of "Depthwise Separable Convolution" we need to go over some aspects of the convolution operation. Let's consider an input matrix of shape $D_{f} \times D{f} \times M $ as shown in \cref{fig:dsc input}. If our input was an RGB image then M would be equal to 3. If we apply a convolution using a filter of shape $D_{k} \times D{k} \times M $ we would obtain an output of size $D_{G} \times D{G} \times 1 $ if we apply the same convolution using N filters of the same shape and concatenate the results we would obtain an output shape of $D_{G} \times D{G} \times N $, see \cref{fig:dsc conv1}.
+Before we get into the definition of "Depthwise Separable Convolution" we need to go over some aspects of the convolution operation. Let's consider an input matrix of shape $D_{f} \times D{f} \times M $ as shown in \cref{fig:dsc_input}. If our input was an RGB image then M would be equal to 3. If we apply a convolution using a filter of shape $D_{k} \times D{k} \times M $ we would obtain an output of size $D_{G} \times D{G} \times 1 $ if we apply the same convolution using N filters of the same shape and concatenate the results we would obtain an output shape of $D_{G} \times D{G} \times N $, see \cref{fig:dsc_conv1}.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dsc input.png}
-	\caption{Convolution input }\label{fig:dsc input}
+	\caption{Convolution input }\label{fig:dsc_input}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv1.png}
-	\caption{Convolution operation }\label{fig:dsc conv1}
+	\caption{Convolution operation }\label{fig:dsc_conv1}
 \end{figure}
 
 Since the multiplication operation is more expensive relative to the addition, let's consider the cost of the convolution operation with regards to the number of multiplications. For one convolution step for one kernel the number of multiplications is $D_{k} \times D_{k} \times M $, for and entire convolution step for one filter the number of multiplications is $D_{G} \times D_{G} \times D_{k} \times D_{k} \times M $ therefore when we account for N filters the number of multiplication for a convolutional layer is $D_{G}^{2} \times D_{k}^{2} \times M $
-With this in mind, we can introduce the concepts of "Depth-wise Convolution" and "Point-wise convolution", which when put together yield a " Depth-wise Separable Convolution ". Unlike simple convolution, Depth-wise Convolution applies convolution to single input channel at a time, using M filters of shape  $D_{k} \times D_{k} \times 1 $ see \cref{fig:dsc conv2}. Point-wise convolution applies N filters of shape $1 \times 1 \times M $ to the output of the Depth-wise convolution and by concatenating the results we obtain the same output shape as simple convolution, see \cref{fig:dsc conv3}
+With this in mind, we can introduce the concepts of "Depth-wise Convolution" and "Point-wise convolution", which when put together yield a " Depth-wise Separable Convolution ". Unlike simple convolution, Depth-wise Convolution applies convolution to single input channel at a time, using M filters of shape  $D_{k} \times D_{k} \times 1 $ see \cref{fig:dsc_conv2}. Point-wise convolution applies N filters of shape $1 \times 1 \times M $ to the output of the Depth-wise convolution and by concatenating the results we obtain the same output shape as simple convolution, see \cref{fig:dsc_conv3}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv2.png}
-	\caption{Depth-wise Convolution }\label{fig:dsc conv2}
+	\caption{Depth-wise Convolution }\label{fig:dsc_conv2}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv3.png}
-	\caption{Point-wise Convolution }\label{fig:dsc conv3}
+	\caption{Point-wise Convolution }\label{fig:dsc_conv3}
 \end{figure}
 
 computing the number of multiplications for the entire process gives  $M \times D_{G}^{2} \times (D_{k}^{2}+N) $ Which is less than the cost of simple convolution. But to get a an understanding of how much computational power is reduced we should compute the ratio
@@ -412,14 +411,17 @@ By taking an example of $D_{k} = 3$ and $N = 1024$ we get a ratio of approximate
 
 \subsubsection{Mobilenet model}
 
-The Mobilenet model is composed of convolutional and Max Pool layers where the full structure is demonstrated in the table seen in \cref{fig:mobilenet table}
+The Mobilenet model is composed of convolutional and Max Pool layers where the full structure is demonstrated in the table seen in \cref{fig:mobilenet_table}
 
-\begin{figure}[ht]
+\begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/mobilenet_table.png}
-	\caption{mobilenet tabel }\label{fig:mobilenet tabel}
+	\caption{mobilenet table}\label{fig:mobilenet_table}
 \end{figure}
 
-\section{Transfer learning}
+\section{Transfer learning}\label{tl}
 Usually training very deep networks from scratch is a very tedious task; huge data-sets are required for the task to better generalize to real life situations. Modern CNNs usually take 2-3 weeks to train across multiple GPUs. However, it has been revealed that deep networks trained on natural images exhibits a curious phenomenon in common: on the first layer they learn general features similar to color blobs and edges. Such first layer features appear not to be \emph{specific} to a particular data-set or task, but \emph{general} in that they are applicable to many data-sets and tasks \cite{Transfer}. This means it may be useful to transfer this knowledge to other similar tasks. This technique is referred to as \textbf{transfer learning}. Deep CNNs are good candidates for this task because they are usually trained on general tasks (like image classification of daily life objects) and have many adjustable layers. As \cite{Transfer} states the transferability of features decreases as the distance between the base task and target task increases, but that transferring features even from distant tasks can be better than using random features. A final surprising result is that initializing a network with transferred features from almost any number of layers can produce a boost to generalization that lingers even after ``fine-tuning'' to the target data-set. One of the strategies used when using transfer learning is referred to as \textbf{fine-tuning}.
-This simply means retraining the whole or parts of the pre-trained CNN. This is done by retraining with the new data-set without changing the architecture or reinitialize the weights. The existing weight are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.
+This simply means retraining the whole or parts of the pre-trained CNN. This is done by retraining with the new data-set without changing the architecture or reinitialize the weights (but some new layers might be added or changed depending on the task at hand). The existing weight are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.
+
+\section{Data augmentation} \label{data_aug}
+Data augmentation is a strategy that enables practitioners to significantly increase the diversity of data available for training models, without actually collecting new data. This is achieved by applying random (but realistic) transformations such as image rotation, cropping, padding, and horizontal flipping \ldots. This is a good practice, since augmenting the size of the training set means more data to learn from, which makes the network even robust.
