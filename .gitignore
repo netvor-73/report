@@ -12,3 +12,4 @@
 figs/resize.py
 *.gz
 *.out
+chapters/results.txt
