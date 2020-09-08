@@ -1,0 +1,85 @@
+\chapter{YOLOv3 network architecture}
+YOLOv3 predicts boxes at 3 different scales. From our base feature extractor (\cref{feature_extractor}) we add several convolutional layers. The last
+of these predicts a 3-d tensor encoding bounding box, objectness, and class predictions. In our experiments with license plate data-set we predict 3 boxes at each scale so the tensor is $N \times N \times [3 \text{*} (4 + 1 + 10)]$ for the 4 bounding box offsets, 1 objectness prediction, and 10 class predictions, representing the ten digits for zero to nine. Next we take the feature map from 2 layers previous and
+upsample it by 2$\times$. We also take a feature map from earlier
+in the network and merge it with our upsampled features
+using concatenation. This method allows us to get more
+meaningful semantic information from the upsampled features and finer-grained information from the earlier feature
+map. We then add a few more convolutional layers to process this combined feature map, and eventually predict a
+similar tensor, although now twice the size. We perform the same design one more time to predict
+boxes for the final scale. Thus our predictions for the 3rd
+scale benefit from all the prior computation as well as fine-grained features from early on in the network \cite{YOLOv3}. See \cref{fig:arch}
+
+\begin{figure}[!htpb]
+  \centering
+  \includegraphics[width=\textwidth]{figs/yolo_architecture.png}
+  \caption{YOLOv3 network architecture}\label{fig:arch}
+\end{figure}
+
+\section{Feature extractor}\label{feature_extractor}
+YOLO don't use any of the already pre-trained backbone networks on image classification. Instead they trained their own classifier on the ImageNet data-set. The network uses successive $3 \times 3$ and $1 \times 1$ convolutional layers with some shortcut (skip) connections. It has 53 convolutional layers, therefore it has been named Darknet-53. Darknet is the deep learning framework used to train it. See \cref{table:Darknet-53}
+
+\begin{table}[H]
+\centering
+\caption{Darknet-53}\label{table:Darknet-53}
+\begin{tabular}{@{}ccccc@{}}
+  \toprule[1.5pt]
+            & \head{Type}       & \head{Filters}     & \head{Size}    & \head{Output} \\
+  \midrule[1.5pt]
+  &           Convolutional     & 32                 & $3 \times 3$   & $256 \times 256$ \\
+  &           Convolutional     & 64                 & $3 \times 3 \ \text{/} 2$   & $128 \times 128$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 32                 & $1 \times 1$   &  \\
+  1 $\times$&           Convolutional     & 64                 & $3 \times 3$   &  \\
+  &           Residual          &                    &                & $128 \times 128$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 128                 & $3 \times 3 \ \text{/} 2$   & $64 \times 64$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 64                 & $1 \times 1$   &  \\
+  2 $\times$&           Convolutional     & 128                 & $3 \times 3$   &  \\
+  &           Residual          &                    &                & $64 \times 64$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 256                 & $3 \times 3 \ \text{/} 2$   & $32 \times 32$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 128                 & $1 \times 1$   &  \\
+  8 $\times$&           Convolutional     & 256                 & $3 \times 3$   &  \\
+  &           Residual          &                    &                & $32 \times 32$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 512                 & $3 \times 3 \ \text{/} 2$   & $16 \times 16$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 256                 & $1 \times 1$   &  \\
+  8 $\times$&           Convolutional     & 512                 & $3 \times 3$   &  \\
+  &           Residual          &                    &                & $16 \times 16$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 1024                & $3 \times 3 \ \text{/} 2$   & $8 \times 8$ \\
+  \cmidrule{2-5}
+  &           Convolutional     & 512                 & $1 \times 1$   &  \\
+  4 $\times$&           Convolutional     & 1024                 & $3 \times 3$   &  \\
+  &           Residual          &                    &                & $8 \times 8$ \\
+  \cmidrule{2-5}
+  &           Avgpool           &                    &Global      & \\
+  &           Connected           &                    &1000      & \\
+  &Softmax & & & \\
+  \bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+The above network is pretty good one compared to other backbones that are even deeper than that which makes it way faster at inference time. See \cref{table:backbone}
+
+\begin{table}
+  \centering
+  \caption[Comparison of backbones]{Comparison of backbones. Accuracy, billions of operations, billion floating point operations per second, and FPS
+  for various networks.}\label{table:backbone}
+  \begin{tabular}{@{}cccccc@{}}
+    \toprule[1.5pt]
+    \head{Backbone} & \head{Top-1} & \head{Top-5} & \head{Bn Ops} & \head{BFLOP/s} & FPS \\
+    \midrule
+    ResNet-101      & 77.1         & 93.7         & 19.7          & 1039           & 53 \\
+    ResNet-152      & \textbf{77.6}         & \textbf{93.8}         & 29.4          & 1090           & 37 \\
+    Darknet-53      & 77.2         & \textbf{93.8}         & 18.7          & \textbf{1457}           & \textbf{78} \\
+    \bottomrule[1.5pt]
+  \end{tabular}
+\end{table}
+
+Each network is trained with identical settings and tested at $256 \times 256$, single crop accuracy. Run times are measured on a Titan X at $256 \times 256$. Thus Darknet-53 performs on par with state-of-the-art classifiers but with fewer floating
+point operations and more speed. Darknet-53 is better than ResNet-101 and 1.5$\times$ faster. Darknet-53 has similar performance to ResNet-152 and is 2$\times$ faster. Darknet-53 also achieves the highest measured floating point operations per second. This means the network structure better utilizes the GPU, making it more efficient to evaluate and thus faster. That’s mostly because ResNets have just way too many layers and aren’t very efficient \cite{YOLOv3}.
