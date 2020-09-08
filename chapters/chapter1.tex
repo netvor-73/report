@@ -300,9 +300,10 @@ calculate all the $\delta^l_j$ ’s, given that we know what the values of $\del
 
 \section{Problems related to neural nets}
 
-Neural networks are extremely powerful function approximators, but if care is not taken during the design of architecture since there are many parameter one can tune (depth, number of units in each layer, \ldots). Therefore, a complex design namely high number of units in each layer and a deep network can lead to \textbf{overfitting}. Over-fitting is the case where the overall cost is really small (The network is doing very well on the training set) but the generalization of the model to unseen data is poor and unreliable. There are many solutions proposed to break this effect such as dropout which consists of randomly zeroing the output of some units in each layer to force the algorithm to take different routes through the network and better generalize. \\
-Another famous problem neural nets suffer from is \textbf{local minimum} problem, where the gradient descent optimizer might converge to a local minimum rather than the global one. But as deep learning is evolving, we now understand that at higher dimensions the chance of getting in such situation is very unlikely due to tremendous number of dimensions deep networks deals with. \\
-Another issue in deep neural nets is the \textbf{vanishing gradients}. As we learned from backp-ropagation, each of the neural network's weights receive an update proportional to the partial derivative of the error function with respect to the current weight in each iteration of training. The problem is that in some cases, the gradient will be vanishingly small, effectively preventing the weight from changing its value. In the worst case, this may completely stop the neural network from further training. As one example of the problem cause, traditional activation functions such as the sigmoid function have gradients in the range (0, 1), and back-propagation computes gradients by the chain rule. This has the effect of multiplying $n$ of these small numbers to compute gradients of the "front" layers in an N-layer network, meaning that the gradient decreases exponentially with N while the front layers train very slowly.
+Neural networks are extremely powerful function approximators, but during the design of architecture care should be taken since there are many parameter one can tune (depth, number of units in each layer, \ldots). Therefore, a complex design namely high number of units in each layer and a deep network can lead to \textbf{overfitting}. Over-fitting is the case where the overall cost is really small (The network is doing very well on the training set) but the generalization of the model to unseen data is poor and unreliable. There are many solutions proposed to break this effect such as \emph{dropout} which consists of randomly zeroing the output of some units in each layer to force the algorithm to take different routes through the network. This has the effect of training smaller portions of the network, and thus smaller functions with reduced complexity are learned. This has the effect of reducing the high variance of the overall neural net. This is referred to as \textbf{regularization}. \\
+Another famous problem neural nets suffer from is \textbf{local minimum} problem, The error surface of a complex network is full of hills and valleys. Because of the gradient descent, the network can get trapped in a local minimum when there is a much deeper minimum nearby. A suggested solution is to increase the number of hidden units. This technique works because of the higher dimensionality of the error space, making the chance to get trapped smaller \cite{atnn}. \\
+Another issue in deep neural nets is the \textbf{vanishing gradients} problem. As we learned from backp-ropagation, each of the neural network's weights receive an update proportional to the partial derivative of the error function with respect to the current weight in each training iteration. The problem is that in some cases, the gradient will be vanishingly small, eventually preventing the weight from changing its value. In the worst case, this may completely stop the neural network from further training. As the network trains, the weights can be adjusted to very large values. The total input of a hidden unit or output unit can therefore reach very high (either positive or
+negative) values, and because of the sigmoid activation function the unit will have an activation very close to zero or very close to one \cite{atnn}. And since back-propagation computes gradients using the chain rule, this has the effect of multiplying $N$ of these small numbers to compute gradients of the "front" layers in an N-layer network, meaning that the gradient decreases exponentially with N while the front layers train very slowly.\\
 To remedy this problem other activation functions might be used in the hidden layers. The behavior of the hidden layers is not directly
 specified by the training data. The learning algorithm must decide how to use those layers to produce the desired output, but the training data do not say what each individual layer should do. Instead, the learning algorithm must decide how to use these layers to best implement an approximation of $f$. Therefore the choice of the activation function in those layers is irrelevant, which makes the use of other activation possible. Many functions have been proposed to escape the trap of vanishing gradients, namely the ReLU function is of popularity in deep learning. The ReLU stands for rectified linear unit defined as $ReLU(x) = \max (0, x)$.
 
@@ -310,3 +311,40 @@ specified by the training data. The learning algorithm must decide how to use th
 
 Batch gradient descent is just another name for the gradient descent discussed so far. It involves calculations over the full training set to take a single step as a result of which it is very slow on very large training data due to the size of the weight matrices that take up large memory portions. Thus it become very computationally expensive to do batch GD. One can take advantage of the property mentioned on \cref{cost}, \cref{equ:additivity}. Therefore, instead going through the entire data-set at each iteration we select a few elements from the
 training set, commonly selected by randomly sampling from all the available labeled data, calculate the gradient, update the network's weights and repeat the process until the network arrives at satisfactory results. The gradients computations are faster as there is much fewer data to manipulate in a single time. This technique is referred to as \textbf{stochastic} gradient descent. One downside though of SGD is, once it reaches close to the minimum value then it does not settle down, instead bounces around which gives us a good value for model parameters but not optimal which can be solved by reducing the learning rate at each step which can reduce the bouncing and SGD might settle down at global minimum after some time.
+%data augmentation
+%adam optimizer
+%train for the license plate detector.
+\section{Adam optimizer}
+Adam is a an optimization algorithm and is an extension to the stochastic gradient descent. It is the most preferred optimizer within the deep learning community because it almost always work faster than SGD. The method computes individual adaptive learning rates for different parameters from estimates of first (mean) and second (variance) moments of the gradients; the name Adam is derived from adaptive moment estimation \cite{adam}.
+The algorithm updates exponential moving averages of the gradient ($m_t$) and the squared gradient ($v_t$) where two parameters $\beta_1, \beta_2 \in [0, 1)$ control the exponential decay rates of these moving averages. The moving averages themselves are estimates of the first moment (the mean $m_t$) and the second raw moment (the variance $v_t$) of the gradient \cite{adam}.
+The update rule of the adam optimizer is as follow, first calculate the running average of the weights as follows (\cref{momentum}):
+
+\begin{align}
+  \label{momentum}
+  m_t &= \beta_1 \cdot m_{t - 1} + (1 - \beta_1) \cdot \frac{\partial L}{\partial w_{i, j}^l} \\
+  v_t &= \beta_2 \cdot v_{t - 1} + (1 - \beta_2) \cdot (\frac{\partial L}{\partial w_{i, j}^l})^2
+\end{align}
+
+Where $m_0$ and $v_0$ are initialized to zero vectors. This leads to moment estimates that are biased towards zero, especially during the initial timesteps. To counteract this bias, both  $m_t$ and $v_t$ are divided by $(1 - \beta^t)$ (\cref{variance}) \cite{adam}. The square operation in the second equation is actually an element-wise square not the ordinary square operation.
+
+\begin{equation}
+  \label{variance}
+  \hat{m}_t = m_t / (1 - \beta_1^t), \qquad \hat{v}_t = v_t / (1 - \beta_2^t)
+\end{equation}
+
+Finally, the weights are updated according to \cref{adam_update_rule}
+
+\begin{equation}
+  \label{adam_update_rule}
+  w_{t} = w_{t-1} - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+\end{equation}
+
+The same equation apply to the bias term $b$. The reason why adam is effective is because it is invariant to scale of the gradients; rescaling the gradients with a factor of $c$ will scale $\hat{m}_t$ with a factor $c$ and $\hat{v}_t$ with a factor of $c^2$, which cancel out \cite{adam}.
+The other reason is that if the gradients using SGD with a high learning rate oscillates a lot in some dimensions, the adam optimizer has the effect of dumping those oscillations since it is taking the mean of the gradient in that direction, summing up positive and negative numbers making the gradients move faster towards the minimum. Also in \cref{adam_update_rule}, we can notice that if $\sqrt{\hat{v}_t} + \epsilon \ $ is large due to large variation of the gradients, then the term $\hat{m}_t$ will be divide by a large number making it small and this has the effect of dumping as well the oscillations. See figure \cref{adam_vs_SGD}. The $\epsilon$ term is added for numerical stability in case $\hat{v}_t = 0$ \cite{hAN}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figs/adam_vs_sgd.png}
+  \caption[The descent in weight space]{The descent in weight space. The concentric ellipsis represents the counters of the cost function. a) SGD with a small learning rate, b) SGD with a large learning rate, c) Adam with a large learning rate.}
+  \label{adam_vs_SGD}
+\end{figure}
