@@ -24,7 +24,7 @@ through all the new details. Therefore we shall only present version three which
 The YOLO algorithm divides the input image into an $S \times S$ grid. If the center of an object falls into a grid cell, that grid cell is responsible
 for detecting that object \cite{YOLOv1}. Each grid cell predicts $B$ bounding boxes, using anchor boxes. Anchor boxes are predefined boxes of certain width and height.
 Those boxes are defined to capture the scale and aspect ratio of specific object classes you want to detect. They are typically chosen based on object
-sizes in the training data \cite{MWAB}, see . Anchor boxes have been introduced to solve two issues (second issue discussed in \cref{sub:net_design}). Objects in the YOLO algorithm are associated with grid cells that their
+sizes in the training data \cite{MWAB}, see . Anchor boxes have been introduced to solve two issues (second issue will be discussed in \cref{sub:net_design}). Objects in the YOLO algorithm are associated with grid cells that their
 centers fall into. If two objects' centers fall into the same grid cell we wont be able to predict both objects. Therefore, we can associate
 each grid cell with multiple anchor boxes each responsible to detect only one object in that cell. A typical number of boxes used is three. See \cref{fig:yolo_output}.
 Each bounding box is associated with a confidence score, which reflects how confident the network is that the bounding box contains an object (also called objectness) \cite{YOLOv1}.
@@ -39,7 +39,7 @@ an $((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$ di
 \end{figure}
 
 
-\subsection{Network design}\label{sub:net_design}\label{sec:network}
+\subsection{Network design}\label{sub:net_design}
 
 The network is a series of convolutional and pooling layers chosen so that the network eventually maps the input image $W \times H \times 3$ to
 an output volume $S \times S \times ((5 + number\ of\ classes\ to\ detect) \times number\ of\ anchor\ boxes)$. YOLO's convolutional layers down-sample the image by a factor of 32, 16, 8. The YOLOv3 network has therefore 3 outputs instead of one, but we will be focusing on only one as the same calculation happen at each scale. The exact architecture is discussed in appendix.
@@ -132,7 +132,7 @@ equal than some threshold are discarded (typical value used is .6). While there 
 \times the\ class\ probability$ and output it as a prediction. Then we discard an remaining box with $IoU \geq 0.5$ with the box outputted in the
 previous step. This algorithm ensures that each object is detected only once. \\
 
-In \cref{sec:network} we discussed how the bounding boxes are being computed, and we finished it with a question: How does the anchor boxes being
+In \cref{sub:net_design} we discussed how the bounding boxes are being computed, and we finished it with a question: How does the anchor boxes being
 assigned to ground truth objects at the beginning? YOLOv3 assigns the anchor with the highest Intersection-over-Union (IoU) overlap with a ground
 truth box.
 
@@ -219,8 +219,3 @@ For training the entire model there must be a well defined loss function which e
 \end{equation}
 
 The training process would proceed using the same optimization and regularization techniques discussed earlier.
-
-%there is a last task that I have to do: talk about the network architecture of yolov3 in the appendix.
-%add backbones
-%add adam algorithm
-%
