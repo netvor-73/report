@@ -1,0 +1,340 @@
+\chapter{Method and results}
+
+\section{Method description}
+For building the application of a license plate detector, we used a part-by-part approach rather than and end-to-end approach. The reason being the lack of labeled data sets designed for this specific application and especially when it comes to Algerian license plates for which there are no published data sets. Needless to mention that the task at hand is relatively less tedious since Algerian plates contain no characters others than digits. Our system defines a "detect plate, detect digits" pipeline. Each step is given a dedicated module that runs in a sequential and independent way. The first module, we call the "plate network", takes the full raw input image that detects plates in the image, crops the detected plates bases upon their bounding boxes then passes them to the second module as inputs. The detected plates are cropped with an extra margin around them to avoid the exclusion of important details (may be digits) for digit detection. The second module, we call "the digits network" receives the detected plates from the first module, detects and recognize the 10 digit classes from 0 to nine, which are specific to algerian license plates. The position of the bounding boxes outputted by the last module determines the order of each digit and a final prediction if given. The full system flow is given
+in \cref{fig:full_sys}. We proceeded to dividing this task at hand into three main parts :
+
+\begin{compactitem}
+	\item Data collection and labeling
+	\item Plate detection and localization
+	\item digit recognition
+\end{compactitem}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics{figs/final_sys.png}
+	\caption[The entire system flow]{The entire system flow. An input image is fed to the plate network, detects the plate crop it according to the output bounding box, fed it to the digit network. The digit network detects the different digits in the plate and output a prediction according to the position of the bounding boxes.}
+	\label{fig:full_sys}
+\end{figure}
+
+\section{Data collection}
+This part includes the manual collection of images of Algerian license plates in different positions, angles, lighting, distance, size, color ... etc. The data set contained close to 1000 images set to be used for labeling. \Cref{fig:img1} below demonstrate some examples.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=.7]{figs/label.png}
+	\caption{Image collection example}\label{fig:img1}
+\end{figure}
+
+The second model which performs digit recognition will be trained on cropped images of plates only, which will be obtained by passing the original set of images through the plate detector.
+
+\section{Data Labeling}
+``Labeled'' data is a group of samples that have been tagged with one or more labels. Labeling typically takes a set of unlabeled data and augments each piece of it with informative tags. For example, a label might indicate whether a photo contains a horse or a cow, which words were uttered in an audio recording, what type of action is being performed in a video, what the topic of a news article is, what the overall sentiment of a tweet is, or whether a dot in an X-ray is a tumor.
+
+Labels can be obtained by asking humans to make judgments about a given piece of unlabeled data (e.g., "Does this photo contain a horse or a cow?"), and are significantly more expensive to obtain than the raw unlabeled data.
+
+After obtaining a labeled dataset, machine learning models can be applied to the data so that new unlabeled data can be presented to the model and a likely label can be guessed or predicted for that piece of unlabeled data."
+
+For the plate detection model the data will be labeled by manually defining a rectangular bounding box around every license plate in each image. For the digit recognition model the data will be labeled by defining a rectangular box around each digit in each image and assign a corresponding label to each bounding box. Note that this process is very tedious and takes months to be completed which is why it must be done carefully and the progress must be kept in secure storage. Labeling data for a machine learning project presents the advantage of eliminating the need for data cleaning and complicated pre-processing since the data set can be built in which ever form is suitable for training. \Cref{fig:label1} and \cref{fig:label2} illustrate the labeling tools used for both models.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/label1.png}
+	\caption{img2}\label{fig:label1}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/label2.png}
+	\caption{img3}\label{fig:label2}
+\end{figure}
+
+\section{Plate detection and localization}
+This part of the application requires training a set of models to detect and localize an Algerian license plate in any given image. The models trained belonged to two families of CNN models, Faster RCNN and YOLOv3.
+
+\subsection{Using Faster RCNN}
+For this family of models, there are three  many parameters which can be adjusted in order to obtain optimal results. The following parameters were chosen for both the digit and plate networks:
+
+\begin{itemize}
+	\item Anchor scales
+	\item The backbone network
+	\item The number of training epochs
+\end{itemize}
+
+This choice is justified by the fact that the other parameters as specified by the original papers have been proven to be optimal in a number of previous works regardless of the application or the data set.
+The optimization algorithm used is Adam for all instances of training. The anchor scales and ratios used were :
+
+\begin{compactitem}
+	\item scales : (32, 64, 128), aspect ratios : $(0.5, 1.0, 2.0)$
+	\item scales : (64, 128, 256), aspect ratios : $(1.0, 2.0, 4.0)$
+\end{compactitem}
+The backbone networks used were :
+
+\begin{compactitem}
+	\item VGG16
+	\item Mobilenet
+	\item Inception
+	\item ResNet
+\end{compactitem}
+The numbers of training epochs used were :
+
+\begin{compactitem}
+	\item 10 epochs
+	\item 30 epochs
+	\item 50 epochs
+\end{compactitem}
+
+\subsubsection{Plate network}
+This implies that the number of training processes launched is $2 \times 4 \times 3 = 24$. The value of the total cost for each training process was plotted with respect to training steps.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/vgg_1.png}
+	\caption{VGG-16 for the first scales and aspect ratios}\label{fig:vgg3_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/mobilenet_1.png}
+	\caption{mobilenet for the first scales and aspect ratios}\label{fig:mobilenet3_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/inception_1.png}
+	\caption{inception for the first scales and aspect ratios}\label{fig:inception1_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/resnet_1.png}
+	\caption{resnet for the first scales and aspect ratios}\label{fig:resnet1_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/vgg_2.png}
+	\caption{VGG-16 for the second scales and aspect ratios}\label{fig:vgg4_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/mobilenet_2.png}
+	\caption{mobilenet for the second scales and aspect ratios}\label{fig:mobilenet4_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/inception_2.png}
+	\caption{inception for the second scales and aspect ratios}\label{fig:inception4_}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/resnet_2.png}
+	\caption{resnet for the second scales and aspect ratios}\label{fig:resnet4_}
+\end{figure}
+
+After these models are trained, they need to be tested on both the training and testing set for analysis. The criterion chosen is the mAP(mean average percent) which is a performance evaluation formula which takes into account the accuracy of the classification as well as the precision of the localization of objects, see (reference publication). For each set of scales and aspect ratios the results of performance on the training and test set were tabulated in \cref{table:1}, \cref{table:2}, \cref{table:3}, \cref{table:4}.
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for plate detection on test set for first set of scales and anchor ratios}\label{table:1}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    10 epochs & 57.5\% & 64.1\% & 75\% & 70.3\% \\
+    30 epochs & 57.2\% & 65\% & 75.1\% & 70\% \\
+    50 epochs & 57\% & 65\% & 75\% & 71\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for plate detection on test set for second set of scales and anchor ratios}\label{table:2}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    10 epochs & 28\% & 25.1\% & 27\% & 28.4\% \\
+    30 epochs & 28.2\% & 25.1\% & 27\% & 28\% \\
+    50 epochs & 28\% & 25\% & 27\% & 28\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+The speed of these models is displayed in the following tables in number of seconds per frame. Keep in mind that the speed of the model does not depend on any hyper-parameter except for the size of the model itself and the input image size. The tests were run on a computer with an NVIDIA GPU model 930MX.
+
+\begin{table}[!htpb]
+	\centering
+	\caption{Number of seconds that each plate detection model takes to process one frame}\label{table:time_1}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    0.3 s & 1.1 s & 1.6 s & 3 s \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\subsubsection{Digit network}
+For this task, the same set of models were trained and the total loss graphs showed the same characteristics relevant for analysis as the ones plotted for plate detection. The same set of results were recorded for the digit recognition models, yielding the following tables.
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for digit recognition on test set for 1st set of scales and anchor ratios}\label{table:3}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    10 epochs & 57\% & 64\% & 74.4\% & 70\% \\
+    30 epochs & 57\% & 65\% & 75\% & 69.9\% \\
+    50 epochs & 57\% & 65\% & 75\% & 69.9\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP results for digit recognition on test set for second set of scales and anchor ratios}\label{table:4}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    10 epochs & 26\% & 23.1\% & 25\% & 26.4\% \\
+    30 epochs & 26.2\% & 23.1\% & 25\% & 26\% \\
+    50 epochs & 26\% & 23\% & 25\% & 26\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{Number of seconds that each digit recognition model takes to process one frame}\label{table:time_2}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+    0.3 s & 1.1 s & 1.6 s & 3 s \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\subsubsection{The final application}
+The application is composed of a Python script that takes an image as input  and passes it through a plate detection model then uses the output to crop the regions containing a license plate and passes them through a digit recognition model (see figure). Both models had an Inception network as a backbone because it has the best mAP. This algorithm is slightly more robust to errors that can be made by the plate detection model, because it checks the digit recognition models' output if it contains a number of digits that is not consistent with reality. Note that Algerian license plates contain from  9 to 11 digits.
+
+For the evaluation of this application, the only relevant characteristics is either or not it reads the license plate number correctly. After testing on 100 test images containing 114 license plates, 96 license plates were read yielding, therefore an accuracy of \textbf{84.21\%}.
+
+\subsection{Using YOLOv3}
+\subsubsection{Module architecture}
+Both the plate and digits networks are based on the YOLOv3 architecture (see appendix) with some modification and parameter choices to fit in with
+the new datasets. The first changed to the base architecture is done to fit the new number of output classes. The original implementation was built to predicted the 80 classes from the COCO dataset \cite{YOLOv3}. Our networks, the plate and digit networks predicts one and ten possible classes respectively. As discussed in section, The network divides the input image into an $S \times S$ grid. The value of S must be chosen carefully. Indeed, a small value would be great but then in a dataset with overlapping objects a greater value of B must be chosen and the network will struggle with small objects since tiny changes in the output value will result in the bounding box swinging a lot which makes it hard to localize. A large value of S is preferable since we want each object to fall into his grid cell to be detected alone. This way a much smaller number of anchor boxes can be chosen because many objects are unlikely to fall into the same cell. But doing so, will result in a large output volume which makes the training difficult and slow. To remedy this problems, the YOLOv3 writer were pretty genius. Instead of having one output, they put three. Each one divides the input image into a different $S \times S$ grid. This depends on the input image shape. If the input image shape is $416 \times 416$, then the three outputs would result in a $13 \times 13$ grid at the first, a $26 \times 26$ at the second, and a $52 \times 52$ at the third output. This way, objects that have not been detected in one of the outputs are likely to be in the others. The authors also used a technique that takes a feature map from earlier in the network and merge it with upsampled features using concatenation. This method allows to get more meaningful semantic information from the upsampled feature maps and finer-grained information from earlier maps \cite{YOLOv3}. This technique helps a lot when dealing with small objects.
+
+\subsubsection{Training configuration}
+The convolutional network Darknet-53 (see appendix) pre-trained on the ImageNet dataset is used as a backbone for both networks. The backbone
+represents the 52 first layers in the architecture (see table). Since the network is huge it is impractical to retrain; that would take ages to train due to low computational power available. The last fully connected layer of Darknet-53 is remove and replaced with additional convolutional layers. The exact architecture is presented in appendix.
+Both networks have been trained with 0.001 learning rate using the Adam optimizer with a momentum of 0.9. The plate net has been trained for
+4500 iterations whereas the digits net for 8200 iterations. The number of iterations basically depends on the number of classes the network
+is training on. The more classes there are the more the number of iterations increases. This phenomenon is an empirical observation with no
+mathematical back up. Data augmentation has been used a lot through the process of training. Specifically, for each 10 iterations both networks randomly choose a new image dimension size, changes the saturation the exposure and the hue of the images. This regime forces the networks to learn to predict well across a variety of input dimensions and gain in robustness. Both networks have been trained in the cloud using a free google service called colab. It offers 12 hours access to a virtual machine equipped with an NVIDIA Tesla K80 GPU.
+
+\subsubsection{Training and testing results}
+\subsubsection{Plate network}
+The plate network has been trained on 630 manually labeled images. It has been trained for 1400 iterations first where the loss went down to
+0.123 with an mAP of 97.0\% (see \cref{fig:chart_1}) on the test set, 270 images where used. But after inspection, we find out that the model struggled with the case of multiple plates in the same image and some fuzzy images. We restarted training for another 2500 iterations from the same point in the hope to get the loss under 0.03, but unfortunately, the training took too long without any noticeable results, therefore we stopped it at 0.052 loss with mAP of 97.8\% (see \cref{fig:chart_2}). In fact, these are pretty good results, and further improvements can be made with more training data and hopefully our initial problems where solved. \Cref{table:plate_result} summarizes the above.
+
+\begin{figure}[!htpb]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/plate_1400.png}
+  \caption{Loss plot for the plate network after 1400 iterations}
+  \label{fig:chart_1}
+\end{figure}
+
+\begin{figure}[!htpb]
+  \centering
+  \includegraphics[width=\textwidth]{figs/chart.png}
+  \caption{Loss plot for the plate network after 4000 iterations. The erased blue portion was due to unstable internet connection}
+  \label{fig:chart_2}
+\end{figure}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{Plate network results using YOLOv3 model}\label{table:plate_result}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{Loss} & \head{mAP} \\
+		\midrule
+    1400 epochs & 0.123 &  97.0\% \\
+    4000 epochs & 0.052 &  97.8\%  \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\Cref{fig:plate_example} shows some examples of plate detection using our network.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics{figs/plate_ie.png}
+	\caption[Plate detection examples]{Plate detection examples. a) Successful detection under challenging conditions b)Complete failure. This is probably due to the shape and the color of the plate which are not usual.}
+	\label{fig:plate_example}
+\end{figure}
+
+\subsubsection{Digit network}
+The digit network has been trained on 845 images containing 10,402 hand annotated digits. As the plate net, it has been trained for 4000 iterations
+at the beginning which brought the loss to 0.8205 with an mAP of 92.0\% on a test set containing 145 images with 1453 annotations.
+The network took so long to get there, but unfortunately doing horribly on the test set. We restarted training for another 4000 iterations
+and finally got the network to 0.567 loss with a 93.8\% mAP on the test set (The plots of the plate and digit network are very similar, therefore there is no need to show them). \Cref{table:digit_results} summarizes the above.
+
+\begin{table}[!htpb]
+	\centering
+	\caption{Digit network results using YOLOv3 model}\label{table:digit_results}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{Loss} & \head{mAP} \\
+		\midrule
+    4000 epochs & 0.8205 &  92.0\% \\
+    8000 epochs & 0.567 &  93.8\%  \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\Cref{fig:digits_example} shows some examples of digit detection using our network.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.7]{figs/digits_ie.png}
+	\caption[Digit detection examples]{Digit detection examples. a) Complete failure. Our model struggles a lot with diagonal images due to the lack of examples. b) Successful detection in blurry images. c) Detection of a false negative in the top right corner.}
+	\label{fig:digits_example}
+\end{figure}
+
+\subsubsection{Speed testing the system}
+The networks have been tested locally on an i5-825u CPU. The speed of networks mainly depends on the input image size; the bigger the image
+the slower the processing time. Our networks both resize the input images to 416 by 416 keeping their aspect ratios. All speed tests
+performed in this project disregard the time it takes to save images to disk and load the networks into memory.
+Only the processing time used by the networks is measured. Table below summarizes all everything discussed above.
+
+\begin{table}[!htpb]
+	\centering
+	\caption{Speed test summary}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Network} & \head{Average Time (s)} \\
+		\midrule
+    Plate network & 0.41 s  \\
+    Digit network & 0.42 s  \\
+    Entire system & 0.76 s \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+The final system using YOLOv3 has been tested on 145 images, 102 were correctly identified, yielding an accuracy of \textbf{70.3\%}.
+
+Here are some examples of plate and digit detection by the final system.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=.7]{figs/example.png}
+	\caption[Entire system flow example.]{Entire system flow example. $1^{st}$quadrant) Successful detection under normal conditions. $2^{nd}$quadrant) Successful detection under challenging conditions. $3^{rd}$quadrant) Missing digits under extreme conditions. $4^{th}$ quadrant) Misclassification of foreign plate (this is normal since the system wasn't design for that purpose).}
+	\label{fig:examples_detection}
+\end{figure}
