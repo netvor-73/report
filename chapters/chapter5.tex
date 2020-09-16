@@ -1,0 +1,22 @@
+\chapter{Result analysis}
+\section{Total loss graphs}
+At first glance at the graphs in (cite section) it appears that the first set of scales and aspect ratios for the RPN anchors produce a cost function that converges towards a certain minimum. Whereas the second set of scales and aspect ratios produce a cost function that is seemingly divergent and keeps oscillating around the initial cost value. This is due to the fact that the first set of scales and aspect ratios produce anchors which are similar in shape and scale to those in both training data sets. Using the second set was an attempt to find a better suited one for the tasks at hand, but it seems like there needs to be a grid search operation in order to possibly find one, which requires more advanced hardware resources and more time. The first set of scales and aspect ratios was used by the authors of the original paper and obtained the best results on very large and diverse data sets of common objects such as COCO, PASCAL, and IMG-NET.
+
+The second characteristic to notice is the fact that less complex models start at a higher loss value but converge towards a minimum faster than more complex ones. This confirms that models with less layers and less parameters per layer train faster than ones with more layers and more parameters. This is explained by the fact that the data sets at hand are too small to influence very deep models like Res-Net.This phenomenon is called "Over-parameterization" where a machine learning model contains too much parameters to train on the data set at hand. This also explains why the Res-Net model converges towards a minimum cost which is higher than that of the less complex models.
+
+\section{mAP tabels}
+The mAP tabels in (section) show that the models trained using the first set of anchors and aspect ratios perform far better than the ones using the second set of scales and aspect ratios, which is an obvious result based on the total loss curves. The best result was obtained by the model using Inception network as a backbone which is 75\% and 74.4\% for test sets of plate detection and digit recognition respectively. For Res-Net the performance seems to have dropped, which is explained by the fact that Res-Net needs more data to learn the specific features of the objects. The difference between the performance on the training set and testing set is expectable since the test set is data which the model has never seen before, but what is remarkable is that this difference is bigger for Res-Net backbone models than it is for the other models. This indicates that the Res-Net backbone model has "Over-fitted" to the training set. Since the other models did not over-fit, it is only reasonable to deduce that the overfitting was due to the higher complexity of the Res-Net based models, which tends to happen with highly complex machine learning models.
+
+
+\section{Final application}
+All of the previous, in addition to the speed performance results, indicates that the model using Inception network as a backbone is optimal for the use in application.
+The accuracy of 84.21\% obtained in the application testing is considered a good result for a first attempt. Although there are many ways to improve on it by working on the following :
+\begin{itemize}
+	\item Building a bigger data set.
+	\item Using more modern techniques and deep learning models.
+	\item Encoding the models as C++ data structures to improve speed.
+	\item Using CUDA programming language to optimize computations on GPU.
+	\item Using unsupervised learning techniques to make sure that the model keeps learning from its' mistakes even after the application is deployed.
+\end{itemize}
+
+There are other ways to correct the short-comings of the application without any work being done on the model. For instance, the application can provide the model with many frames of the same car, thereby making sure that if the model makes a mistake in one frame, it can correct it in another.
