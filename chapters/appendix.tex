@@ -1,27 +1,29 @@
-\chapter{YOLOv3 network architecture}
-YOLOv3 predicts boxes at 3 different scales. From our base feature extractor (\cref{feature_extractor}) we add several convolutional layers. The last
-of these predicts a 3-d tensor encoding bounding box, objectness, and class predictions. In our experiments with license plate data-set we predict 3 boxes at each scale so the tensor is $N \times N \times [3 \text{*} (4 + 1 + 10)]$ for the 4 bounding box offsets, 1 objectness prediction, and 10 class predictions, representing the ten digits for zero to nine. Next we take the feature map from 2 layers previous and
-upsample it by 2$\times$. We also take a feature map from earlier
-in the network and merge it with our upsampled features
-using concatenation. This method allows us to get more
-meaningful semantic information from the upsampled features and finer-grained information from the earlier feature
-map. We then add a few more convolutional layers to process this combined feature map, and eventually predict a
-similar tensor, although now twice the size. We perform the same design one more time to predict
-boxes for the final scale. Thus our predictions for the 3rd
-scale benefit from all the prior computation as well as fine-grained features from early on in the network \cite{YOLOv3}. See \cref{fig:arch}
-
-\begin{figure}[!htpb]
-  \centering
-  \includegraphics[width=\textwidth]{figs/yolo_architecture.png}
-  \caption{YOLOv3 network architecture}\label{fig:arch}
-\end{figure}
-
+\chapter{YOLOv3 network architecture} \label{appendix:A}
 \section{Feature extractor}\label{feature_extractor}
 YOLO don't use any of the already pre-trained backbone networks on image classification. Instead they trained their own classifier on the ImageNet data-set. The network uses successive $3 \times 3$ and $1 \times 1$ convolutional layers with some shortcut (skip) connections. It has 53 convolutional layers, therefore it has been named Darknet-53. Darknet is the deep learning framework used to train it. See \cref{table:Darknet-53}
 
+Darknet-53 network is pretty good one compared to other backbones that are even deeper than that which makes it way faster at inference time. See \cref{table:backbone}.
+Each network is trained with identical settings and tested at $256 \times 256$, single crop accuracy. Run times are measured on a Titan X at $256 \times 256$. Thus Darknet-53 performs on par with state-of-the-art classifiers but with fewer floating
+point operations and more speed. Darknet-53 is better than ResNet-101 and 1.5$\times$ faster. Darknet-53 has similar performance to ResNet-152 and is 2$\times$ faster. Darknet-53 also achieves the highest measured floating point operations per second. This means the network structure better utilizes the GPU, making it more efficient to evaluate and thus faster. That’s mostly because ResNets have just way too many layers and aren’t very efficient \cite{YOLOv3}.
+
 \begin{table}[H]
+  \centering
+  \caption[Comparison of backbones]{Comparison of backbones. Accuracy, billions of operations, billion floating point operations per second, and FPS
+  for various networks \cite{YOLOv3}.}\label{table:backbone}
+  \begin{tabular}{@{}cccccc@{}}
+    \toprule[1.5pt]
+    \head{Backbone} & \head{Top-1} & \head{Top-5} & \head{Bn Ops} & \head{BFLOP/s} & FPS \\
+    \midrule
+    ResNet-101      & 77.1         & 93.7         & 19.7          & 1039           & 53 \\
+    ResNet-152      & \textbf{77.6}         & \textbf{93.8}         & 29.4          & 1090           & 37 \\
+    Darknet-53      & 77.2         & \textbf{93.8}         & 18.7          & \textbf{1457}           & \textbf{78} \\
+    \bottomrule[1.5pt]
+  \end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
 \centering
-\caption{Darknet-53}\label{table:Darknet-53}
+\caption{Darknet-53 \cite{YOLOv3}.}\label{table:Darknet-53}
 \begin{tabular}{@{}ccccc@{}}
   \toprule[1.5pt]
             & \head{Type}       & \head{Filters}     & \head{Size}    & \head{Output} \\
@@ -64,22 +66,52 @@ YOLO don't use any of the already pre-trained backbone networks on image classif
 \end{tabular}
 \end{table}
 
-The above network is pretty good one compared to other backbones that are even deeper than that which makes it way faster at inference time. See \cref{table:backbone}
+\chapter[mAP for Object Detection]{mAP (mean Average Precision) for Object Detection}
+AP (Average precision) is a popular metric in measuring the accuracy of object detectors like Faster R-CNN, SSD, etc. To understand it, its better to recap some related concepts.
 
-\begin{table}
-  \centering
-  \caption[Comparison of backbones]{Comparison of backbones. Accuracy, billions of operations, billion floating point operations per second, and FPS
-  for various networks.}\label{table:backbone}
-  \begin{tabular}{@{}cccccc@{}}
-    \toprule[1.5pt]
-    \head{Backbone} & \head{Top-1} & \head{Top-5} & \head{Bn Ops} & \head{BFLOP/s} & FPS \\
-    \midrule
-    ResNet-101      & 77.1         & 93.7         & 19.7          & 1039           & 53 \\
-    ResNet-152      & \textbf{77.6}         & \textbf{93.8}         & 29.4          & 1090           & 37 \\
-    Darknet-53      & 77.2         & \textbf{93.8}         & 18.7          & \textbf{1457}           & \textbf{78} \\
-    \bottomrule[1.5pt]
-  \end{tabular}
-\end{table}
+\section{Precision and recall}
+Precision measures how accurate is your predictions. i.e. the percentage of your predictions are correct.
+Recall measures how good you find all the positives. For example, we can find 80\% of the possible positive cases in our top K predictions.
+Here are their mathematical definitions:
 
-Each network is trained with identical settings and tested at $256 \times 256$, single crop accuracy. Run times are measured on a Titan X at $256 \times 256$. Thus Darknet-53 performs on par with state-of-the-art classifiers but with fewer floating
-point operations and more speed. Darknet-53 is better than ResNet-101 and 1.5$\times$ faster. Darknet-53 has similar performance to ResNet-152 and is 2$\times$ faster. Darknet-53 also achieves the highest measured floating point operations per second. This means the network structure better utilizes the GPU, making it more efficient to evaluate and thus faster. That’s mostly because ResNets have just way too many layers and aren’t very efficient \cite{YOLOv3}.
+$$
+Precision = \frac{TP}{TP + FP}
+$$
+$$
+Precision = \frac{TP}{TP + FN}
+$$
+$$
+TP = True\ positive, \quad
+FP = False\ positive, \quad
+TN = True\ negative, \quad
+FN = False\ negative.
+$$
+
+\section{Average Precision}
+Let’s create an over-simplified example in demonstrating the calculation of the average precision. In this example, the whole dataset contains 5 apples only. We collect all the predictions made for apples in all the images and rank it in descending order according to the predicted confidence level. The second column indicates whether the prediction is correct or not. In this example, the prediction is correct if $IoU \geq 0.5$.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/map2.png}
+	\caption{Example of precision and recall values.}\label{fig:map2}
+\end{figure}
+
+Let’s take the row with rank 3 and demonstrate how precision and recall are calculated first.
+Precision is the proportion of TP = 2/3 = 0.67.
+Recall is the proportion of TP out of the possible positives = 2/5 = 0.4.
+Recall values increase as we go down the prediction ranking. However, precision has a zigzag pattern — it goes down with false positives and goes up again with true positives.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/map3.png}
+	\caption{Plot of precision vs recall.}\label{fig:map3}
+\end{figure}
+The general definition for the Average Precision (AP) is finding the area under the precision-recall curve above.
+$$
+AP = \int_{0}^{1} p(r)dr
+$$
+Precision and recall are always between 0 and 1. Therefore, AP falls within 0 and 1 also. Before calculating AP for the object detection, we often smooth out the zigzag pattern first. Graphically, at each recall level, we replace each precision value with the maximum precision value to the right of that recall level.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/map4.png}
+	\caption{Elimination of zigzag pattern.}\label{fig:map4}
+\end{figure}

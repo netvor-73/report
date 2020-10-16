@@ -1,0 +1,22 @@
+\chapter*{Abstract}
+In some institutions, office buildings, or government facilities
+the flow of incoming and outgoing traffic of people and cars needs
+to be monitored and recorded for security purposes as well as practicality
+and automation of entry pass for vehicles.
+In this project, a data set containing 1000 car images is collected, labeled, and then split into
+training set and testing set. The size of this data set would allow for a transfer learning
+approach and fine tuning of models.
+The next step is to train various models belonging to the Yolo and
+Faster RCNN families to perform the task of plate detection only. Once the models are
+trained and optimized they were used to crop images of plates from the
+original images of cars. These cropped images were used to train models for the
+task of digit recognition similar to those trained for plate detection. The training
+process was repeated for different structures and parameters of the models in
+order to obtain the best performance possible. Evaluating these models relies on
+the use of the mAP (mean average precision) which is used in the original papers of
+YOLO and Faster-RCNN. The evaluation of the final model (plate detection + digit recognition)
+will rely on the accuracy of performing the identification of the license plate numbers.
+This project aims to provide Algerian academics and software developers with
+a benchmark data set for further research on the topic and for evaluation of
+future models. It would also provide users of the application with a reliable and
+practical security tool.

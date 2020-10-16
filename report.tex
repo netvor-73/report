@@ -16,6 +16,7 @@
 \frenchspacing
 \renewcommand{\bibname}{References}
 \setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
 
 %temporary packages
 \usepackage[english]{babel}
@@ -39,16 +40,20 @@
 \setlength{\abovetopsep}{1pt}
 \DeclareUnicodeCharacter{2212}{-}
 
+% \includeonly{chapters/abstract, chapters/dedication, chapters/acknowledgment, chapters/introduction,
+             % chapters/chapter4, chapters/convolution}
+
 \begin{document}
 \frontmatter
 %the entire document will be divided into chapters only.
-\chapter*{Abstract}
-\blindtext
-\addcontentsline{toc}{chapter}{Abstract}
-\nopagebreak
 
-\chapter*{Acknowledgment}
-\blindtext
+\include{chapters/abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\include{chapters/dedication}
+\addcontentsline{toc}{chapter}{Dedication}
+
+\include{chapters/acknowledgment}
 \addcontentsline{toc}{chapter}{Acknowledgment}
 
 \tableofcontents
@@ -62,9 +67,32 @@
 \chapter{List of Abbreviations}
 
 \begin{description}
-
+  \item[MLP] Multi Layer Perceptron
   \item[CNN] Convolutional neural networks
-  \item[ANN] Artifitial neural networks
+  \item[BCE] Binary cross-entropy
+  \item[MLE] Maximum likelihood estimate
+  \item[GD] Gradient descent
+  \item[SGD] stochastic gradient descent
+  \item[Adam] Adaptive moment estimate
+  \item[RGB] Red Blue Green
+  \item[ILSVRC] ImageNet Large Scale Visual Recognition Challenge
+  \item[GPU] Graphical processing unit
+  \item[CPU] Central processing unit
+  \item[YOLO] You Only Look Once
+  \item[RCNN] Region Convolutional Neural Networks
+  \item[IoU] Intersection over Union
+  \item[PASCAL] Pattern Analysis, Statistical modeling and Computational Learning
+  \item[VOC] Visual Object Classes
+  \item[RPN] Region Proposal Network
+  \item[COCO] Common Objects in Context
+  \item[ROI] Region of Interest
+  \item[ALPR] Automatic License Plate Recognition
+  \item[CUDA] Compute Unified Device Architecture
+  \item[FPS] Frames Per Second
+  \item[FC] Fully Connected
+  \item[mAP] mean Average Precision
+  \item[BFLOP] Billion Floating Operations
+  \item[DSC] Depth-wise Separable Convolution
 
 \end{description}
 
@@ -76,12 +104,8 @@
 \include{chapters/chapter2}
 \include{chapters/chapter3}
 \include{chapters/chapter4}
-\include{chapters/chapter5}
-
-% \chapter*{Conclusion}
-% \addcontentsline{toc}{chapter}{Conclusion}
-% \blindtext[5]
-
+\include{chapters/conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
 
 \appendix
 \clearpage

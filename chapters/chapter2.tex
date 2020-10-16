@@ -1,12 +1,8 @@
-\chapter[Convolution neural networks]{Neural network Variant: Convolutional Neural Networks}
+\chapter[Convolution neural networks]{Convolutional Neural Networks}
 
-Convolutional networks, also known as convolutional neural networks, or CNNs, are a specialized kind of neural network for processing data
-that has a known grid-like topology. Examples include time-series data, which can be thought of as a 1-D grid taking samples at regular time intervals, and image data, which can be thought of as a 2-D grid of pixels. Convolutional networks have been tremendously
-successful in practical applications. The name “convolutional neural network” indicates that the network employs a mathematical operation
-called convolution. Convolution is a specialized kind of linear operation. Convolutional networks are simply neural networks that use
-convolution in place of general matrix multiplication in at least one of their layers \cite{Ian16}.
+CNNs, also known as convolutional neural networks, are a specialized kind of neural network for processing data that has a known grid-like topology. Examples include time-series data, which can be thought of as a 1-D grid taking samples at regular time intervals, and image data, which can be thought of as a 2-D grid of pixels. CNNs have been tremendously successful in practical applications. The name “convolutional neural network” indicates that the network employs a mathematical operation called convolution. Convolution is a specialized kind of linear operation. CNNs are simply neural networks that use convolution in place of general matrix multiplication in at least one of their layers \cite{Ian16}.
 
-\section{The convolution operation}
+\section{Convolution operation}
 
 The convolution operation is well known in the engineering terminology, which, in its most general form, is an operation on two functions of a real-valued argument.
 defined as:
@@ -16,14 +12,9 @@ defined as:
   s[n] = y[n] \ast x[n] = \sum_{k=-\infty}^{k=\infty} y[k] x[n - k]
 \end{equation}
 
-We are interested in the discrete convolution operation, since data on a computer is presented as discrete values rather than continuous
-signals.
-The \cref{convolution} presented above is for discrete time signals. \\
+We are interested in the discrete convolution operation, since data on a computer is presented as discrete values rather than continuous signals. The \cref{convolution} presented above is for discrete time signals. \\
 
-In convolution neural network terminology, the first argument to the convolution is often referred to as \textbf{the input}, and the second argument as \textbf{the kernel}.
-The output is sometimes referred as the \textbf{feature map}. The input is usually a multidimensional array of data (RGB images), and the kernel is usually a multidimensional array of parameters that are adapted by the learning algorithm. These multidimensional arrays are referred as tensors. Finally, we often use convolution over more than one axis at a time.
-For example if we use a two-dimensional image $I$ as our input, we probably also want to use a
-two-dimensional kernel $K$:
+In convolutional neural network terminology, the first argument to the convolution is often referred to as \textbf{the input}, and the second argument as \textbf{the kernel}. The output is sometimes referred as the \textbf{feature map}. The input is usually a multidimensional array of data (Red Green Blue channel (RGB) images), and the kernel is usually a multidimensional array of parameters that are adapted by the learning algorithm. These multidimensional arrays are referred to as tensors. Finally, we often use convolution over more than one axis at a time. For example if we use a two-dimensional image $I$ as our input, we probably also want to use a two-dimensional kernel $K$:
 
 \begin{equation}
   \label{2Dconvolution}
@@ -48,22 +39,22 @@ but without flipping the kernel:
 \end{equation}
 
 Many machine learning libraries implement cross-correlation but call it convolution. See \cref{fig:conv-ex} for an example of convolution
-applied to a 2d tensor (gray-scale image).
+applied to a 2D tensor (gray-scale image).
 
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/conv_ex.png}
-  \caption{An example of 2-D convolution}\label{fig:conv-ex}
+  \caption{An example of 2-D convolution \cite{Ian16}.}\label{fig:conv-ex}
 \end{figure}
 
-\section{Convolution networks architecture}
+\section{CNN architectures}
 
 Convolution leverages three important ideas that can help improve a machine learning system: sparse connectivity, parameter sharing and
 equivariant representations.
 
 Traditional neural network layers use matrix multiplication by a matrix of parameters with a separate parameter describing the interaction between each input unit and each output unit. This means that every output unit interacts with every input unit, see \cref{fig:fully_connected}.
-Convolutional networks, however, typically have sparse interactions (also referred to as \textbf{sparse connectivity} or sparse weights).
+CNNs, however, typically have sparse interactions (also referred to as \textbf{sparse connectivity} or sparse weights).
 This is accomplished by making the kernel smaller than the input.
 For example, when processing an image, the input image might have thousands or millions of pixels, but we can detect small, meaningful features such as edges with kernels that occupy only tens or hundreds of pixels. This means that we need to store
 fewer parameters, which both reduces the memory requirements of the model and improves its statistical efficiency.
@@ -73,27 +64,24 @@ parameters, and the algorithms used in practice have $O(m \times n)$ runtime (pe
 If we limit the number of connections each output may have to $k$, then the sparsely connected approach requires
 only $k \times n$ parameters and $O(k \times n)$ runtime. For many practical applications, it is possible to obtain good performance
 on the machine learning task while keeping $k$ several orders of magnitude smaller
-than $m$ \cite{Ian16}. For graphical demonstrations of sparse connectivity, see \cref{fig:s_conv_1} and \cref{fig:s_conv_2}.
+than $m$ \cite{Ian16}. For graphical demonstrations of sparse connectivity, see \cref{fig:s_conv_1} and \cref{fig:s_conv_2}. Rearranging each vector as a matrix, the relationship between the nodes in each layer are more obvious, see \cref{fig:s_conv_2}.
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/fully_connected.png}
-  \caption[Traditional neural network connections]{Traditional neural network connections. The last layer has been replace by a black box for simplicity}\label{fig:fully_connected}
+  \caption[Traditional neural network connections]{Traditional neural network connections. The last layer has been replaced by a black box for simplicity}\label{fig:fully_connected}
 \end{figure}
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/conv_1.png}
-  \caption{Sparce connectivity}\label{fig:s_conv_1}
+  \caption{Sparse connectivity. In contrast to the previous figure, fewer lines connect the input and hidden layers}\label{fig:s_conv_1}
 \end{figure}
-
-Rearranging each vector as a matrix, the relationship between the nodes in each layer are more obvious, see \cref{fig:s_conv_2}.
-
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/conv_2.png}
-  \caption{Sparce connectivity after rearrangement}\label{fig:s_conv_2}
+  \caption{Sparse connectivity after rearrangement.}\label{fig:s_conv_2}
 \end{figure}
 
 \textbf{Parameter sharing} refers to using the same parameter for more than one function in a model. In a traditional neural net, each
@@ -102,19 +90,19 @@ then never revisited. As a synonym for parameter sharing, one can say that a net
 weight applied to one input is tied to the value of a weight applied elsewhere \cref{fig:fully_connected}.
 That is the reason, traditional nets are referred as to Fully connected (FC) networks or Dense networks.\\
 
-In a convolutional neural net, each member of the kernel is used at every position
+In a CNN, each member of the kernel is used at every position
 of the input (except perhaps some of the boundary pixels, depending on the
 design decisions regarding the boundary). The parameter sharing used by the
 convolution operation means that rather than learning a separate set of parameters
 for every location, we learn only one set. In \cref{fig:s_conv_2}, each of the color coded image quarters are connected to a single color
 coded node in the next layer. All of these connections have exactly the same shared weights, see \cref{fig:conv-ex}, the weights $w_{11}$
 through $w_{33}$ do not change as the filter slides through the image. This does not affect the runtime of
-forward propagation—it is still $O(k \times n)$—but it does further reduce the storage
+forward propagation —it is still $O(k \times n)$— but it does further reduce the storage
 requirements of the model to $k$ parameters. The particular form of parameter sharing causes the
 layer to have a property called \textbf{equivariance to translation}. \\
 
 To say a function is equivariant means that if the input changes, the output changes in the same way.
-Specifically, a function $f(x)$ is equivariant to a function $g$ if $f(g(x)) = g(f(x))$. In
+Specifically, a function $f(x)$ is equivariant to a function $g(x)$ if $f(g(x)) = g(f(x))$. In
 the case of convolution, if we let $g$ be any function that translates the input, that
 is, shifts it, then the convolution function is equivariant to $g$. For example, let $I$
 be a function giving image brightness at integer coordinates. Let $g$ be a function
@@ -146,14 +134,16 @@ See \cref{fig:filter} to see the effect of applying the above filter to a graysc
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{figs/panda.png}
-  \caption[2D convolution]{2D convolution. Where there is no change or little change of intensity in the original picture, the high pass filter
-  block those areas out and turn the pixels black. But in the areas where a pixel is way brighter than its immediate neighbors, the high pass filter
-  enhance the change and create a line. This has the effect of emphasizing edges. Edges are just areas in an image where the intensity changes very
-  quickly. This images has been obtain by convolving the filter $K$ with the image in the left, as we can see the three principles discussed above
-  apply to this filter. The values of $K$ didn't change while convolving (shared parameters). Space connectivity where
-  the filter looks only to a small portion of the image at a time. And the equivariant translation, where we clearly see that no matter the position
-  of the edge in the image the filter successful highlight it.}\label{fig:filter}
+  \caption[2D convolution on a practical example]{2D convolution on a practical example.}\label{fig:filter}
 \end{figure}
+
+As we can see in \cref{fig:filter}, where there is no change or little change of intensity in the original picture, the high pass filter
+block those areas out and turn the pixels black. But in the areas where a pixel is way brighter than its immediate neighbors, the high pass filter
+enhance the change and create a line. This has the effect of emphasizing edges. Edges are just areas in an image where the intensity changes very
+quickly. This images has been obtain by convolving the filter $K$ with the image in the left, as we can see the three principles discussed above
+apply to this filter. The values of $K$ didn't change while convolving (shared parameters). Space connectivity where
+the filter looks only to a small portion of the image at a time. And the equivariant translation, where we clearly see that no matter the position
+of the edge in the image the filter successful highlight it.
 
 \section{Convolutional layer}
 
@@ -162,19 +152,19 @@ The convolutional layer is produced by applying a series of many different image
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/filters.png}
-  \caption{Multiple filters for multiple pattern detection}
+  \caption{Multiple filters for multiple pattern detection \cite{ud188}.}\label{fig:mfmp}
 \end{figure}
 
-In the example shown, 4 different filters produce 4 differently filtered output images.
-When we stack these images, we form a complete convolutional layer with a depth of 4. See \cref{fig:conv_layer}.
+In the example shown in \cref{fig:mfmp}, 4 different filters produce 4 differently filtered output images.
+When we stack these images, we form a complete convolutional layer with a depth of 4, see \cref{fig:conv_layer}.
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/conv_layer.png}
-  \caption{A complete convolutional layer with 4 filters}\label{fig:conv_layer}
+  \caption{A complete convolutional layer with 4 filters \cite{ud188}.}\label{fig:conv_layer}
 \end{figure}
 
-In case of colored images, computer interprets them as 3D-tensor $(Height \times width \times channels)$. Here channels are the RGB channels. When
+In case of colored images, computer interprets them as 3D-tensor $(Height \times width \times channels)$. Here, channels are the RGB channels. When
 performing convolution, the kernel $K$ is itself chosen to be three dimensional as well. A typical kernel $K$ would be $3 \times 3 \times 3$. The
 resulting output feature map would be $(Height \times Width)$. In order to depict multiple patterns in the image, instead of having a single kernel,
 multiple kernel are defined. Now each resulting output feature map can be considered as an image channel and stack them to get a 3 dimensional
@@ -183,37 +173,37 @@ first convolutional layer. This operation can be repeated multiple times to disc
 
 In CNNs, inference works the same way as old plain neural network. Both convolutional and Dense layers have weights and biases and initial
 randomly generated. Therefore, in the case of CNNs where the weights take the form of convolutional kernel or filters, those kernels are randomly
-generated and so are the patterns that they're initially designed to detect. As with Fully connected networks, when we construct a CNN, we will
-always specify a loss function. In the case of multiclass classification, this will be categorical cross-entropy loss(equ  from chapter 1). Then as
+generated and so are the patterns that they're initially designed to detect. As with FC networks, when we construct a CNN, we will
+always specify a loss function. In the case of multiclass classification, this will be categorical cross-entropy loss (\cref{equ:m_likelihood}). Then as
 we train the model through back propagation, the filters are updated at each iteration to take on values that minimizes the loss function. In other
 words, the CNN determines what kind of patterns it needs to detect base on the loss function.
 
 \section{Stride and padding}
-The behavior of a convolutional neural network can be controlled by specifying the number of filters and the size of each filter, these are referred
+The behavior of a CNN can be controlled by specifying the number of filters and the size of each filter, these are referred
 to as \textbf{hyper-parameters}. For instance, to increase the number of nodes in a convolutional layer, you could increase the number of filters.
 To increase the size of the detected patterns, you could increase the size of the filters. But there are more hyper-parameters than we can tune.
 One of these hyper-parameters is referred to as the stride of the convolution. The stride is just the amount by which the filter slides over the
-image. In the previous example \cref{fig:conv-ex}, the stride was one. We move the convolution window horizontally and vertically  across the image
-one pixel at a time \cite{ud188}. The width and height of the output of the convolution is given by \cref{conv_out_1}, if the input image is $n \times n$,
-with a filter $f \times f$ :
+image. In the previous example of \cref{fig:conv-ex}, the stride was one. We move the convolution window horizontally and vertically  across the image
+one pixel at a time \cite{ud188}. The width and height of the output of the convolution is given by \cref{conv_out_1}, with an input image of $n \times n$,
+with an $f \times f$ filter:
 
 \begin{equation}
   \label{conv_out_1}
-  n - f + 1 \times n - f + 1
+  (n - f + 1) \times (n - f + 1)
 \end{equation}
 
 If we introduce the stride parameter $s$, \cref{conv_out_1} can be rewritten as follow:
 
 \begin{equation}
   \label{conv_out_2}
-  \lfloor\frac{n - f}{s}\rfloor + 1\times \lfloor\frac{n - f}{s}\rfloor + 1
+  (\lfloor\frac{n - f}{s}\rfloor + 1)\times (\lfloor\frac{n - f}{s}\rfloor + 1)
 \end{equation}
 
 
 One downside of the convolution operation is the shrinking input dimensions. Indeed, according to \cref{conv_out_1}, the input dimension shrinks
 each time by few pixels which can be an undesirable effect in very deep networks, where the image can shrink to very small dimensions. Another
 downside of the convolution is, the top left pixel (or corners of an image in general) is only involved in one pass of the filter, whereas if we
-take a pixel in the middle, then many $2 \times 2$ regions will overlap that pixel. It as if the pixels at the corners are used much less in the
+take a pixel in the middle, then many $2 \times 2$ regions will overlap that pixel. It is as if the pixels at the corners are used much less in the
 output, so information is thrown away near the edge of the image. Therefore to solve both of this problems, before applying the convolution we can
 pad the image with additional boarders, for instance 1 pixel, see \cref{fig:padding}. Therefore the width and height of the output feature map is
 calculated as:
@@ -234,19 +224,21 @@ appropriate padding value. And the corner pixels contribute more in the output f
 
 \section{Pooling}
 
-Pooling function is the next type of layer in convolutional neural networks. It replaces the output of the net at a certain location with
+Pooling function is the next type of layer in CNNs. It replaces the output of the net at a certain location with
 a summary statistic of the nearby outputs. For example, the max pooling operation reports the maximum output within a rectangular
 neighborhood. Other popular pooling functions include average pooling of a rectangular neighborhood \cite{Ian16}.
-see figure  on how to perform max pooling.
+See \cref{fig:maxpooling} on how to perform max pooling.
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics{figs/max_pooling.png}
-  \caption[Maxpooling example]{Maxpooling example. As in the convolution operation, we slide a window across the image typically a $2 \times 2$ window. The value of the
-  corresponding node in the max pooling layer is calculated by just taking the maximum of the pixels contained in the window. The pooling function
-  is applied independently on every feature map in the input stack. The output is a stack with same number of feature maps with width and height
-  reduced by a factor of two.}\label{fig:maxpooling}
+  \caption[Maxpooling example]{Maxpooling example.}\label{fig:maxpooling}
 \end{figure}
+
+We clearly see from \cref{fig:maxpooling}, As in the convolution operation, we slide a window across the image typically a $2 \times 2$ window. The value of the
+corresponding node in the max pooling layer is calculated by just taking the maximum of the pixels contained in the window. The pooling function
+is applied independently on every feature map in the input stack. The output is a stack with same number of feature maps with width and height
+reduced by a factor of two.
 
 In all cases, pooling helps to make the representation approximately invariant to small translations of the input. Invariance to translation means
 that if we translate the input by a small amount, the values of most of the pooled outputs do not change. Invariance to local translation can be a
@@ -258,7 +250,7 @@ roughly $s$ times fewer inputs to process and reduces the memory requirements fo
 
 Therefore, most CNNs are composed of only those two layers: Pooling and convolution. We begin with convolution layers which detects regional patterns
 in an image using a series of filters. Typically, just like fully connected networks, an activation function is applied to the output feature maps.
-RelU activation function is used as it has proven to be extremely efficient in object classification tasks. Then pooling layers follow the
+ReLU activation function is used as it has proven to be extremely efficient in object classification tasks. Then pooling layers follow the
 convolutional layers to reduce the dimensionality of their input tensors. CNNs are designed with the goal of taking an input image and gradually
 making it much deeper than it is tall or wide. As the network gets deeper, it is actually extracting more and more complex patters and features that
 help identify the content and objects in an image. CNNs are usually referred to as \textbf{feature extractors}. Another issue that rises when
@@ -269,130 +261,55 @@ same width and height. So, we have to pick an image size and resize all of our i
 
 \section{Case studies}
 
-So why look at case studies? In the few last chapters, we learned about the basic building blocks such as convolutional layers, pooling layers and fully connected layers of conv nets. It turns out a lot of the past few years of computer vision research has been on how to put together these basic building blocks to form effective convolutional neural networks, focusing on the \emph{object classification task}. One of the best ways to get intuition on how to build conv nets is to read or to see other examples of effective conv nets, and it turns out that a net neural network architecture that works well on one computer vision task often works well on other tasks as well. Indeed those same networks discussed in this section are used as feature extractors or otherwise called \textbf{backbones} for object detection networks since an object detection requires the classification of objects and their localization. Therefore, instead of training those networks from scratch they build upon those already good Classifiers, see \cref{tl}.
+ In the few last chapters, we learned about the basic building blocks such as convolutional layers, pooling layers and fully connected layers of conv nets. It turns out a lot of the past few years of computer vision research has been on how to put together these basic building blocks to form effective convolutional neural networks, focusing on the \emph{object classification task}. One of the best ways to get intuition on how to build conv nets is to read or to see other examples of effective conv nets, and it turns out that a net neural network architecture that works well on one computer vision task often works well on other tasks as well. Indeed those same networks discussed in this section are used as feature extractors or otherwise called \textbf{backbones} for object detection networks since an object detection requires the classification of objects and their localization. Therefore, instead of training those networks from scratch they build upon those already good Classifiers, see \cref{tl}.
 
 \subsection{VGG-16}
 
-VGG16 is a convolutional neural network model proposed by K. Simonyan and A. Zisserman from the University of Oxford in the paper “Very Deep Convolutional Networks for Large-Scale Image Recognition”. The model achieves 92.7\% top-5 test accuracy in ImageNet, which is a data-set of over 14 million images belonging to 1000 classes. It was one of the famous model submitted to ILSVRC-2014. It makes the improvement over AlexNet by replacing large kernel-sized filters (11 and 5 in the first and second convolutional layer, respectively) with multiple $3 \times 3$ kernel-sized filters one after another. VGG16 was trained for weeks and was using NVIDIA Titan Black GPU’s. see \cref{fig:vgg16}.
+VGG16 is a CNN model proposed by K. Simonyan and A. Zisserman from the University of Oxford in the paper “Very Deep Convolutional Networks for Large-Scale Image Recognition”. The model achieves 92.7\% top-5 test accuracy in ImageNet \cite{b10}, which is a data-set of over 14 million images belonging to 1000 classes \cite{b21}. It was one of the famous model submitted to one of the most prestigious computer vision competition. It makes the improvement over state of the art at that time by replacing large kernel-sized filters (11 and 5 in the first and second convolutional layer, respectively) with multiple $3 \times 3$ kernel-sized filters one after another. VGG16 was trained for weeks and was using graphical processing tchnology. see \cref{fig:vgg16}.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/vgg16.png}
-	\caption{vgg 16}\label{fig:vgg16}
+	\caption{VGG-16 structure by layers.}\label{fig:vgg16}
 \end{figure}
 
-The ConvNet configurations are outlined in \cref{fig:vgg16_2}. The nets are referred to their names (A-E). All configurations follow the generic design present in architecture and differ only in the depth: from 11 weight layers in the network A (8 conv. and 3 FC layers) to 19 weight layers in the network E (16 conv. and 3 FC layers). The width of conv. layers (the number of channels) is rather small, starting from 64 in the first layer and then increasing by a factor of 2 after each max-pooling layer, until it reaches 512. see \cref{fig:vgg16_2}.
+The ConvNet configurations are outlined in \cref{fig:vgg16_2}. The nets are referred to their names (A-E). All configurations follow the generic design present in architecture and differ only in the depth: from 11 weight layers in the network A (8 convolutional layers  and 3 fully connected layers) to 19 weight layers in the network E (16 convolutional layers  and 3 fully connected  layers). The width of convolutional  layers (the number of channels) is rather small, starting from 64 in the first layer and then increasing by a factor of 2 after each max-pooling layer, until it reaches 512. See \cref{fig:vgg16_2}.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figs/vgg16_2.png}
-	\caption{vgg 16 config}\label{fig:vgg16_2}
+	\caption{VGG-16 network configuration.}\label{fig:vgg16_2}
 \end{figure}
-
-\subsection{Res-Net}
-
-ResNet, short for Residual Networks is a classic neural network used as a backbone for many computer vision tasks. This model was the winner of ImageNet challenge in 2015. The fundamental breakthrough with ResNet was it allowed us to train extremely deep neural networks with 150+layers successfully. Prior to ResNet training very deep neural networks was difficult due to the problem of vanishing gradients.
-
-AlexNet, the winner of ImageNet 2012 and the model that apparently kick started the focus on deep learning had only 8 convolutional layers, the VGG network had 19 and Inception or GoogleNet had 22 layers and ResNet 152 had 152 layers.
-
-However, increasing network depth does not work by simply stacking layers together. Deep networks are hard to train because of the notorious vanishing gradient problem — as the gradient is back-propagated to earlier layers, repeated multiplication may make the gradient extremely small. As a result, as the network goes deeper, its performance gets saturated or even starts degrading rapidly. For this reason the creators of Res-Net introduced the idea of "Skip Connections"
-
-\subsubsection{Skip Connection}
-
-ResNet first introduced the concept of skip connection. \cref{fig:resnet1}. below illustrates skip connection. The figure on the left is stacking convolution layers together one after the other. On the right we still stack convolution layers as before but we now also add the original input to the output of the convolution block. This is called skip connection. We must note that the addition operation occurs before the output goes through the ReLu function.
-The main two reasons why skip connections work are :
-
-\begin{itemize}
-  \item They mitigate the problem of vanishing gradient by allowing this alternate shortcut path for gradient to flow through
-  \item They allow the model to learn an identity function which ensures that the higher layer will perform at least as good as the lower layer, and not worse
-\end{itemize}
-
-\begin{figure}[!htpb]
-	\centering
-	\includegraphics[width=0.8\textwidth]{figs/resnet1.png}
-	\caption{resnet1}\label{fig:resnet1}
-\end{figure}
-
-\subsection{Inception}
-
-The Inception network was an important milestone in the development of CNN classifiers. Prior to its inception (pun intended), most popular CNNs just stacked convolution layers deeper and deeper, hoping to get better performance.The Inception network on the other hand, was complex (heavily engineered). It used a lot of tricks to push performance; both in terms of speed and accuracy. Its constant evolution lead to the creation of several versions of the network. The popular versions are : Inception v1, Inception v2, Inception v3, and Inception Res-Net. Each version is an iterative improvement over the previous one. Understanding the upgrades can help us to build custom classifiers that are optimized both in speed and accuracy.
-
-\subsubsection{Inception V1}
-The Problem addressed by the developers of this model is the extreme large variation in the size of the salient parts in the image. For instance, An image of a dog can have any of the forms shown in \cref{fig:inception1}. The area occupied by the dog is different in each image. This significant variation in the location of the relevant features of the object we wish to detect and classify requires choosing the right kernel size for the convolution operation, which becomes a complicated task. A larger kernel is preferred for information that is distributed more globally, and a smaller kernel is preferred for information that is distributed more locally. And considering the fact that very deep networks are prone to over-fitting in addition to the difficulty they pose in performing back-propagation across the layers it goes without saying that naively stacking large convolution operations is computationally expensive and will not improve network performance on new data.
-
-As a solution, the authors of the original paper suggested the use of multiple filters of different sizes in one layer. Rendering The network "wider" rather than “deeper”.
-
-\Cref{fig:inception2} explains the core idea of this model. It performs convolution on an input, with 3 different sizes of filters $(1 \times 1, 3 \times 3, 5 \times 5)$. Additionally, max pooling is also performed. The outputs are concatenated and sent to the next inception layer.
-
-As stated before, deep neural networks are computationally expensive. To make it cheaper, the authors limit the number of input channels by adding an extra $1 \times 1$ convolution before the $3 \times 3$ and $5 \times 5$ convolutions. Though adding an extra operation may seem counter intuitive, $1 \times 1$ convolutions are far less expensive than $5 \times 5$ convolutions, and the reduced number of input channels also help (similar to the method used in mobilenet). Do note that however, the 1x1 convolution is introduced after the max pooling layer, rather than before. See \cref{fig:inception3}
-
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.9\textwidth]{figs/inception1.png}
-	\caption{inception1}\label{fig:inception1}
-\end{figure}
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.9\textwidth]{figs/inception2.png}
-	\caption{inception2}\label{fig:inception2}
-\end{figure}
-
-Using the dimension reduced inception module, a neural network architecture was built. This was popularly known as GoogLeNet (Inception v1). The architecture is shown in \cref{fig:inception4}.
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.9\textwidth]{figs/inception3.png}
-	\caption{inception3}\label{fig:inception3}
-\end{figure}
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=\textwidth]{figs/inception4.png}
-	\caption{inception4}\label{fig:inception4}
-\end{figure}
-
-GoogLeNet has 9 such inception modules stacked linearly. It is 22 layers deep (27, including the pooling layers). It uses global average pooling at the end of the last inception module.
-
-Needless to say, it is a pretty deep classifier. As with any very deep network, it is subject to the vanishing gradient problem.
-
-To prevent the middle part of the network from “dying out”, the authors introduced two auxiliary classifiers (The purple boxes in \cref{fig:inception4}). They essentially applied softmax to the outputs of two of the inception modules, and computed an auxiliary loss over the same labels. The total loss function is a weighted sum of the auxiliary loss and the real loss. Weight value used in the paper was 0.3 for each auxiliary loss. Needless to say, auxiliary loss is purely used for training purposes, and is ignored during inference.
-$$
-total\ loss = real\ loss + 0.3\  aux\ loss_1 + 0.3\  aux\ loss_2
-$$
 
 \subsection{Mobilenet}
-MobileNet is a CNN architecture model for used for object detection and image Classification, generally used in mobile applications.There exists a variety of models designed for the same purpose as well but the reason why MobileNet stand out is that it requires much less computation power to run or apply transfer learning to.This characteristic is what makes it optimal to run on embedded systems in general , computer systems without GPU or low computational efficiency, as well as Mobile devices which don't have the necessary hardware to run more costly models. Needless to say, the use of Mobilenet  comes with a significant compromise in the accuracy of the results. It is also best suited for web browsers as browsers have limitation over computation,graphic processing and storage. Mobilenet architecture is distinguished by an essential features know as "Depth-wise Separable Convolution".
-
-\subsubsection{Depthwise Separable Convolution}
-Before we get into the definition of "Depthwise Separable Convolution" we need to go over some aspects of the convolution operation. Let's consider an input matrix of shape $D_{f} \times D{f} \times M $ as shown in \cref{fig:dsc_input}. If our input was an RGB image then M would be equal to 3. If we apply a convolution using a filter of shape $D_{k} \times D{k} \times M $ we would obtain an output of size $D_{G} \times D{G} \times 1 $ if we apply the same convolution using N filters of the same shape and concatenate the results we would obtain an output shape of $D_{G} \times D{G} \times N $, see \cref{fig:dsc_conv1}.
+MobileNet is a CNN architecture model  used for object detection and image Classification, generally used in small applications.There exists a variety of models designed for the same purpose as well but the reason why MobileNet stand out is that it requires much less computation power to run or apply transfer learning to.This characteristic is what makes it optimal to run on embedded systems in general, computer systems without GPU or low computational efficiency, as well as Mobile devices which don't have the necessary hardware to run more costly models. Needless to say, the use of Mobilenet comes with a significant compromise in the accuracy of the results. It is also best suited for web browsers as browsers have limitation over computation, graphic processing , and storage. Mobilenet architecture is distinguished by an essential features know as "Depth-wise Separable Convolution" \cite{b11}.\\
+Before we get into the definition of "Depth-wise Separable Convolution" we need to go over some aspects of the convolution operation. Let's consider an input matrix of shape $D_{f} \times D_{f} \times M $ as shown in \cref{fig:dsc_input}. If our input was an RGB image then M would be equal to 3. If we apply a convolution using a filter of shape $D_{k} \times D_{k} \times M $ we would obtain an output of size $D_{G} \times D_{G} \times 1 $ if we apply the same convolution using N filters of the same shape and concatenate the results we would obtain an output shape of $D_{G} \times D_{G} \times N $, see \cref{fig:dsc_conv1}.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dsc input.png}
-	\caption{Convolution input }\label{fig:dsc_input}
+	\caption{Convolution input.}\label{fig:dsc_input}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv1.png}
-	\caption{Convolution operation }\label{fig:dsc_conv1}
+	\caption{Convolution operation.}\label{fig:dsc_conv1}
 \end{figure}
 
 Since the multiplication operation is more expensive relative to the addition, let's consider the cost of the convolution operation with regards to the number of multiplications. For one convolution step for one kernel the number of multiplications is $D_{k} \times D_{k} \times M $, for and entire convolution step for one filter the number of multiplications is $D_{G} \times D_{G} \times D_{k} \times D_{k} \times M $ therefore when we account for N filters the number of multiplication for a convolutional layer is $D_{G}^{2} \times D_{k}^{2} \times M $
-With this in mind, we can introduce the concepts of "Depth-wise Convolution" and "Point-wise convolution", which when put together yield a " Depth-wise Separable Convolution ". Unlike simple convolution, Depth-wise Convolution applies convolution to single input channel at a time, using M filters of shape  $D_{k} \times D_{k} \times 1 $ see \cref{fig:dsc_conv2}. Point-wise convolution applies N filters of shape $1 \times 1 \times M $ to the output of the Depth-wise convolution and by concatenating the results we obtain the same output shape as simple convolution, see \cref{fig:dsc_conv3}
+With this in mind, we can introduce the concepts of "Depth-wise Convolution" and "Point-wise convolution", which when put together yield a " Depth-wise Separable Convolution ". Unlike simple convolution, Depth-wise Convolution applies convolution to single input channel at a time, using M filters of shape  $D_{k} \times D_{k} \times 1 $ see \cref{fig:dsc_conv2}. Point-wise convolution applies N filters of shape $1 \times 1 \times M $ to the output of the Depth-wise convolution and by concatenating the results we obtain the same output shape as simple convolution, see \cref{fig:dsc_conv3} \cite{b11}.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv2.png}
-	\caption{Depth-wise Convolution }\label{fig:dsc_conv2}
+	\caption{Depth-wise Convolution.}\label{fig:dsc_conv2}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/dsc conv3.png}
-	\caption{Point-wise Convolution }\label{fig:dsc_conv3}
+	\caption{Point-wise Convolution.}\label{fig:dsc_conv3}
 \end{figure}
 
 computing the number of multiplications for the entire process gives  $M \times D_{G}^{2} \times (D_{k}^{2}+N) $ Which is less than the cost of simple convolution. But to get a an understanding of how much computational power is reduced we should compute the ratio
@@ -409,19 +326,93 @@ $$
 
 By taking an example of $D_{k} = 3$ and $N = 1024$ we get a ratio of approximately $\frac{1}{9}$ which signifies a substantial decrease in computational requirements.
 
-\subsubsection{Mobilenet model}
+\subsubsection{Mobilenet model structure}
 
-The Mobilenet model is composed of convolutional and Max Pool layers where the full structure is demonstrated in the table seen in \cref{fig:mobilenet_table}
+The Mobilenet model is composed of convolutional and Max Pool layers where the full structure is demonstrated in the table seen in \cref{fig:mobilenet_table} \cite{b11}.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/mobilenet_table.png}
-	\caption{mobilenet table}\label{fig:mobilenet_table}
+	\caption{mobilenet structure table.}\label{fig:mobilenet_table}
+\end{figure}
+
+\subsection{Inception}
+
+The Inception network was an important milestone in the development of CNN classifiers. Prior to its inception (pun intended), most popular CNNs just stacked convolution layers deeper and deeper, hoping to get better performance.The Inception network on the other hand, was complex (heavily engineered). It used a lot of tricks to push performance; both in terms of speed and accuracy. Its constant evolution lead to the creation of several versions of the network. The popular versions are : Inception v1, Inception v2, Inception v3, and Inception Res-Net. Each version is an iterative improvement over the previous one. Understanding the upgrades can help us to build custom classifiers that are optimized both in speed and accuracy.
+
+\subsubsection{Inception V1}
+The Problem addressed by the developers of this model is the extreme large variation in the size of the salient parts in the image. For instance, An image of a dog can have any of the forms shown in \cref{fig:inception1}. The area occupied by the dog is different in each image. This significant variation in the location of the relevant features of the object we wish to detect and classify requires choosing the right kernel size for the convolution operation, which becomes a complicated task. A larger kernel is preferred for information that is distributed more globally, and a smaller kernel is preferred for information that is distributed more locally. Considering the fact that very deep networks are prone to over-fitting in addition to the difficulty they pose in performing back-propagation across the layers it goes without saying that naively stacking large convolution operations is computationally expensive and will not improve network performance on new data.
+
+The authors of the original paper suggested the use of multiple filters of different sizes in one layer rendering the network "wider" rather than “deeper” \cite{b7}.
+
+\Cref{fig:inception2} explains the core idea of this model. It performs convolution on an input, with 3 different sizes of filters $(1 \times 1.3 \times 3.5 \times 5)$. Additionally, max pooling is also performed. The outputs are concatenated and sent to the next inception layer.
+
+As stated before, deep neural networks are computationally expensive. To make it cheaper, the authors limit the number of input channels by adding an extra $1 \times 1$ convolution before the $3 \times 3$ and $5 \times 5$ convolutions. Though adding an extra operation may seem counter intuitive, $1 \times 1$ convolutions are far less expensive than $5 \times 5$ convolutions, and the reduced number of input channels also help (similar to the method used in Mobilenet). Do note that however, the 1x1 convolution is introduced after the max pooling layer, rather than before \cite{b12}, see \cref{fig:inception3}
+
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception1.png}
+	\caption{Examples of dog images.}\label{fig:inception1}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception2.png}
+	\caption{Inception network layer general structure.}\label{fig:inception2}
+\end{figure}
+
+Using the dimension reduced inception module, a neural network architecture was built. This was popularly known as GoogLeNet (Inception v1). The architecture is shown in \cref{fig:inception4}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figs/inception3.png}
+	\caption{Inception layer with added $1 \times 1$ convolution operation.}\label{fig:inception3}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{figs/inception4.png}
+	\caption{Inception network structure.}\label{fig:inception4}
+\end{figure}
+
+GoogLeNet has 9 such inception modules stacked linearly. It is 22 layers deep (27, including the pooling layers). It uses global average pooling at the end of the last inception module.
+
+Needless to say, it is a pretty deep classifier. As with any very deep network, it is subject to the vanishing gradient problem.
+
+To prevent the middle part of the network from “dying out”, the authors introduced two auxiliary classifiers (The purple boxes in \cref{fig:inception4}). They essentially applied softmax to the outputs of two of the inception modules, and computed an auxiliary loss over the same labels. The total loss function is a weighted sum of the auxiliary loss and the real loss. Weight value used in the paper was 0.3 for each auxiliary loss \cite{b12}. Needless to say, auxiliary loss is purely used for training purposes, and is ignored during testing.
+$$
+total loss = real_loss + 0.3 aux_loss_1 + 0.3 aux_loss_2
+$$
+
+\subsection{Res-Net}
+
+ResNet, short for Residual Networks is a classic neural network used as a backbone for many computer vision tasks. This model was the winner of ImageNet challenge in 2015. The fundamental breakthrough with ResNet was that it allowed us to train extremely deep neural networks with 150+layers successfully \cite{b13}. Prior to ResNet, training very deep neural networks was difficult due to the problem of vanishing gradients.
+
+AlexNet, the winner of ImageNet 2012 and the model that apparently kick started the focus on deep learning had only 8 convolutional layers, the VGG network had 19 and Inception or GoogleNet had 22 layers and ResNet 152 had 152 layers.
+
+However, increasing network depth does not work by simply stacking layers together. Deep networks are hard to train because of the notorious vanishing gradient problem as the gradient is back-propagated to earlier layers, repeated multiplication may make the gradient extremely small. As a result, as the network goes deeper, its performance gets saturated or even starts degrading rapidly. For this reason the creators of Res-Net introduced the idea of "Skip Connections"
+
+\subsubsection{Skip Connection}
+
+ResNet first introduced the concept of skip connection. \cref{fig:resnet1}. illustrates skip connection. The figure on the left is stacking convolution layers together one after the other. We still stack convolution layers as before but we now also add the original input to the output of the convolution block. This is called skip connection. We must note that the addition operation occurs before the output goes through the ReLu (Rectification linear unit) function \cite{b13}.
+The main two reasons why skip connections work are :
+
+\begin{itemize}
+  \item Skip connections mitigate the problem of vanishing gradient by allowing this alternate shortcut path for gradient to flow through.
+  \item They allow the model to learn an identity function which ensures that the higher layer will perform at least as good as the lower layer, and not worse.
+\end{itemize}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figs/resnet1.png}
+	\caption{Skip connection.}\label{fig:resnet1}
 \end{figure}
 
 \section{Transfer learning}\label{tl}
-Usually training very deep networks from scratch is a very tedious task; huge data-sets are required for the task to better generalize to real life situations. Modern CNNs usually take 2-3 weeks to train across multiple GPUs. However, it has been revealed that deep networks trained on natural images exhibits a curious phenomenon in common: on the first layer they learn general features similar to color blobs and edges. Such first layer features appear not to be \emph{specific} to a particular data-set or task, but \emph{general} in that they are applicable to many data-sets and tasks \cite{Transfer}. This means it may be useful to transfer this knowledge to other similar tasks. This technique is referred to as \textbf{transfer learning}. Deep CNNs are good candidates for this task because they are usually trained on general tasks (like image classification of daily life objects) and have many adjustable layers. As \cite{Transfer} states the transferability of features decreases as the distance between the base task and target task increases, but that transferring features even from distant tasks can be better than using random features. A final surprising result is that initializing a network with transferred features from almost any number of layers can produce a boost to generalization that lingers even after ``fine-tuning'' to the target data-set. One of the strategies used when using transfer learning is referred to as \textbf{fine-tuning}.
-This simply means retraining the whole or parts of the pre-trained CNN. This is done by retraining with the new data-set without changing the architecture or reinitialize the weights (but some new layers might be added or changed depending on the task at hand). The existing weight are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.
+Usually, training very deep networks from scratch is a very tedious task; huge data-sets are required for the task to better generalize to real life situations. Modern CNNs usually take 2-3 weeks to train across multiple GPUs. However, it has been revealed that deep networks trained on natural images exhibits a curious phenomenon in common: on the first layer they learn general features similar to color blobs and edges. Such first layer features appear not to be \emph{specific} to a particular data-set or task, but \emph{general} in that they are applicable to many data-sets and tasks \cite{Transfer}. This means it may be useful to transfer this knowledge to other similar tasks. This technique is referred to as \textbf{transfer learning}. Deep CNNs are good candidates for this task because they are usually trained on general tasks (like image classification of daily life objects) and have many adjustable layers. As reference \cite{Transfer} states ,the transferability of features decreases as the distance between the base task and target task increases, but that transferring features even from distant tasks can be better than using random features. A final surprising result is that initializing a network with transferred features from almost any number of layers can produce a boost to generalization that lingers even after ``fine-tuning'' to the target data-set. One of the strategies used when using transfer learning is referred to as \textbf{fine-tuning}.
+This simply means retraining the whole or parts of the pre-trained CNN. This is done by retraining with the new data-set without changing the architecture or reinitializing the weights (but some new layers might be added or changed depending on the task at hand). The existing weights are said to be \emph{fine-tuned} to the new task at hand \cite{ntnu}.
 
 \section{Data augmentation} \label{data_aug}
-Data augmentation is a strategy that enables practitioners to significantly increase the diversity of data available for training models, without actually collecting new data. This is achieved by applying random (but realistic) transformations such as image rotation, cropping, padding, and horizontal flipping \ldots. This is a good practice, since augmenting the size of the training set means more data to learn from, which makes the network even robust.
+\
+Data augmentation is a strategy that enables practitioners to increase the diversity of data available for training models, without actually collecting new data. This is achieved by applying random (but realistic) transformations such as image rotation, cropping, padding, and horizontal flipping \ldots. This is a good practice, since augmenting the size of the training set means more data to learn from, which makes the network even robust.

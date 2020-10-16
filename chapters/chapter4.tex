@@ -1,74 +1,69 @@
-\chapter{Method and results}
+\chapter{Design and implementation of ALPR system}\label{chapter:4}
 
-\section{Method description}
-For building the application of a license plate detector, we used a part-by-part approach rather than and end-to-end approach. The reason being the lack of labeled data sets designed for this specific application and especially when it comes to Algerian license plates for which there are no published data sets. Needless to mention that the task at hand is relatively less tedious since Algerian plates contain no characters others than digits. Our system defines a "detect plate, detect digits" pipeline. Each step is given a dedicated module that runs in a sequential and independent way. The first module, we call the "plate network", takes the full raw input image that detects plates in the image, crops the detected plates bases upon their bounding boxes then passes them to the second module as inputs. The detected plates are cropped with an extra margin around them to avoid the exclusion of important details (may be digits) for digit detection. The second module, we call "the digits network" receives the detected plates from the first module, detects and recognize the 10 digit classes from 0 to nine, which are specific to algerian license plates. The position of the bounding boxes outputted by the last module determines the order of each digit and a final prediction if given. The full system flow is given
+\section{Workflow description}
+For building the ALPR application, we used a part-by-part approach rather than and end-to-end approach. The reason being is the lack of labeled data sets designed for this specific application, especially when it comes to Algerian license plates for which there are no published data sets. Needless to mention that the task at hand is relatively less tedious since Algerian plates contain no characters others than digits. Our system defines a "detect plate, detect digits" pipeline. Each step is given a dedicated module that runs in a sequential and independent way. The first module,  called the "plate network", takes the full raw input image that detects plates in the image, crops the detected plates bases upon their bounding boxes then passes them to the second module as inputs. The detected plates are cropped with an extra margin around them to avoid the exclusion of important details (may be digits) for digit detection. The second module,  called "the digits network" receives the detected plates from the first module, detects and recognize the 10 digit classes from 0 to 9, which are specific to Algerian license plates. The position of the bounding boxes outputted by the last module determines the order of each digit and a final prediction is given. The full system flow is given
 in \cref{fig:full_sys}. We proceeded to dividing this task at hand into three main parts :
 
 \begin{compactitem}
-	\item Data collection and labeling
-	\item Plate detection and localization
-	\item digit recognition
+	\item Data collection and labeling.
+	\item Plate detection and localization.
+	\item Digit recognition.
 \end{compactitem}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics{figs/final_sys.png}
-	\caption[The entire system flow]{The entire system flow. An input image is fed to the plate network, detects the plate crop it according to the output bounding box, fed it to the digit network. The digit network detects the different digits in the plate and output a prediction according to the position of the bounding boxes.}
+	\caption[The entire system flow]{The entire system flowchart.}
 	\label{fig:full_sys}
 \end{figure}
 
 \section{Data collection}
-This part includes the manual collection of images of Algerian license plates in different positions, angles, lighting, distance, size, color ... etc. The data set contained close to 1000 images set to be used for labeling. \Cref{fig:img1} below demonstrate some examples.
+Data collection includes the manual collection of images of license plates in different positions, angles, lighting, distance, size, color \ldots. The data set contains close to 1000 images ready to be used for labeling. \Cref{fig:img1} below shows some examples.
 
-\begin{figure}[H]
+\begin{figure}[!htpb]
 	\centering
 	\includegraphics[scale=.7]{figs/label.png}
 	\caption{Image collection example}\label{fig:img1}
 \end{figure}
 
-The second model which performs digit recognition will be trained on cropped images of plates only, which will be obtained by passing the original set of images through the plate detector.
+The second model which performs digit recognition will be trained on cropped images of plates only, which will be obtained by passing the original set of images through the plate detector and using the obtained plate bounding boxes to crop the plates.
 
 \section{Data Labeling}
-``Labeled'' data is a group of samples that have been tagged with one or more labels. Labeling typically takes a set of unlabeled data and augments each piece of it with informative tags. For example, a label might indicate whether a photo contains a horse or a cow, which words were uttered in an audio recording, what type of action is being performed in a video, what the topic of a news article is, what the overall sentiment of a tweet is, or whether a dot in an X-ray is a tumor.
+``Labeled'' data is a group of samples that have been tagged with one or more labels. Labeling typically takes a set of unlabeled data and augments each piece of it with informative tags. For example, a label might indicate whether a photo contains a horse or a cow, which words were uttered in an audio recording, what type of action is being performed in a video, what the topic of a news article is, what the overall sentiment of a tweet is, or whether a dot in an X-ray is a cancer.
 
-Labels can be obtained by asking humans to make judgments about a given piece of unlabeled data (e.g., "Does this photo contain a horse or a cow?"), and are significantly more expensive to obtain than the raw unlabeled data.
+Labels can be obtained by asking humans to make judgments about a given piece of unlabeled data (e.g., "Does this photo contain a horse or a cow?"), and are significantly more expensive to obtain than the raw unlabeled data. After obtaining a labeled dataset, machine learning models can be applied to the data so that new unlabeled data can be presented to the model and a likely label can be guessed or predicted for that piece of unlabeled data.
 
-After obtaining a labeled dataset, machine learning models can be applied to the data so that new unlabeled data can be presented to the model and a likely label can be guessed or predicted for that piece of unlabeled data."
-
-For the plate detection model the data will be labeled by manually defining a rectangular bounding box around every license plate in each image. For the digit recognition model the data will be labeled by defining a rectangular box around each digit in each image and assign a corresponding label to each bounding box. Note that this process is very tedious and takes months to be completed which is why it must be done carefully and the progress must be kept in secure storage. Labeling data for a machine learning project presents the advantage of eliminating the need for data cleaning and complicated pre-processing since the data set can be built in which ever form is suitable for training. \Cref{fig:label1} and \cref{fig:label2} illustrate the labeling tools used for both models.
+For the plate detection model, the data will be labeled  manually by defining a rectangular bounding box around every license plate in each image. For the digit recognition model, the data will be labeled by defining a rectangular box around each digit in each image and assign a corresponding label to each bounding box. Note that this process is very tedious and takes months complete which is why it must be done carefully and the progress must be kept in secure storage. Labeling data for a machine learning project presents the advantage of eliminating the need for data cleaning and complicated pre-processing since the data set can be built in which ever form is suitable for training. \Cref{fig:label1} and \cref{fig:label2} illustrate the labeling tools used for both models.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/label1.png}
-	\caption{img2}\label{fig:label1}
+	\caption{Example of plate labeling.}\label{fig:label1}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/label2.png}
-	\caption{img3}\label{fig:label2}
+	\caption{Example of digit labeling.}\label{fig:label2}
 \end{figure}
 
-\section{Plate detection and localization}
-This part of the application requires training a set of models to detect and localize an Algerian license plate in any given image. The models trained belonged to two families of CNN models, Faster RCNN and YOLOv3.
+\section{ALPR using Faster RCNN} \label{subsection:ufrcc}
+Plate and digit detection requires training a set of models to detect and localize a license plate in any given image. The models trained belonged to two families of CNN models which are Faster RCNN and YOLOv3. In this section, we shall discuss the first family. For this family of models, there are three  main parameters which can be adjusted in order to obtain optimal results. The following parameters were chosen for both the digit and plate networks:
 
-\subsection{Using Faster RCNN}
-For this family of models, there are three  many parameters which can be adjusted in order to obtain optimal results. The following parameters were chosen for both the digit and plate networks:
-
-\begin{itemize}
+\begin{compactitem}
 	\item Anchor scales
-	\item The backbone network
-	\item The number of training epochs
-\end{itemize}
+	\item Backbone network
+	\item Number of training epochs
+\end{compactitem}
 
-This choice is justified by the fact that the other parameters as specified by the original papers have been proven to be optimal in a number of previous works regardless of the application or the data set.
-The optimization algorithm used is Adam for all instances of training. The anchor scales and ratios used were :
+This choice is justified by the fact that the other parameters as specified by the original paper have been proven to be optimal in a number of previous works regardless of the application or the data set.
+The optimization algorithm used is the same for all instances of training. The anchor scales and ratios are :
 
 \begin{compactitem}
 	\item scales : (32, 64, 128), aspect ratios : $(0.5, 1.0, 2.0)$
 	\item scales : (64, 128, 256), aspect ratios : $(1.0, 2.0, 4.0)$
 \end{compactitem}
-The backbone networks used were :
+Backbone networks are :
 
 \begin{compactitem}
 	\item VGG16
@@ -76,7 +71,7 @@ The backbone networks used were :
 	\item Inception
 	\item ResNet
 \end{compactitem}
-The numbers of training epochs used were :
+Numbers of training epochs are :
 
 \begin{compactitem}
 	\item 10 epochs
@@ -84,62 +79,151 @@ The numbers of training epochs used were :
 	\item 50 epochs
 \end{compactitem}
 
-\subsubsection{Plate network}
-This implies that the number of training processes launched is $2 \times 4 \times 3 = 24$. The value of the total cost for each training process was plotted with respect to training steps.
+\subsection{Plate detection network}
+The list of parameters to be modified implies that the number of training processes launched is 24 each time with different parameters. The main coding tool is Pytorch library which is a Python package developed by Facebook. The platform used is Google Colab which is a free cloud service provided by Google, it provides Python programming environments equipped with all the tools and packages needed for building deep learning models, including Pytorch and GPU accelerators.
+Note that Pytorch is distinguished by its' object oriented approach to machine learning models. Whereas every model, design, or process is represented by a class.The process of training a Faster RCNN model using these tools includes the following steps :
+\begin{compactitem}
+	\item Implementing a data set class called "LicencePlateDataset".
+	\item Implementing a backbone network class.
+	\item Implementing a Faster RCNN model class.
+	\item Implementing a trainer function.
+\end{compactitem}
+
+\subsubsection{LicencePlateDataset class implementation }
+The class ``LicencePlateDataset'' shown in \cref{fig:dataset} inherits from the Pytorch class called "Dataset". The main function of this class is to instantiate objects which represent training examples. The \emph{Dataset} class is characterized by the function ``\_\_getitem(index)\_\_'' which takes an index as an argument and returns a training example as an image along with its corresponding label. The function \emph{\_\_getitem(index)\_\_} is overridden to match the specific format of data that the model requires. The \emph{Dataset} class is also characterized by the function ``process()'' which access the data set and modifies it in a way that makes it accessible by the \emph{\_\_getitem(index)\_\_} function.
+
+The attribute ``transforms'' is an object from the ``torchvision.transforms'' class which contains specification for dimentionality and data type modifications applied on each training example. The size of the training images needs to be $500 \times 500 \times 3$ as shown in the original paper \cite{b6}. The data type of the image tensor (images are stacks of three 2D matrices representing the RGB channels) needs to be a ``torch.Tensor'', which is the data type required by Pytorch models. See \cref{fig:trans}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/dataset.png}
+	\caption{Skeleton code for LicencePlateDataset() class.}\label{fig:dataset}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/trans.png}
+	\caption{Code line for instantiating a "transforms" object.}\label{fig:trans}
+\end{figure}
+
+Running a unit test on the code is necessary to make sure that each part of our code is running correctly. The unit test for the LicencePlateDataset class is shown in \cref{fig:test1}, along with the output. The test code creates an object from the class and prints out the label and the path of the image.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/test1.png}
+	\caption{Test code for LicencePlateDataset() class.}\label{fig:test1}
+\end{figure}
+
+\subsubsection{Backbone class implementation}
+The Backbone class instantiates backbone networks as objects. Objects from this class are characterized by the method ``feed\_forward(X)'' which passes a given image $X$ through the backbone network model and returns the output from the final convolutional layer. Objects from the same class are also characterized by the method ``nn\_base()'' which defines the layers of the convolutional neural network. For each backbone network a separate class is implemented because they each have different architectures and different helper methods and special operations. \cref{fig:vgg_code} shows the code of the method ``nn\_base()'' for the simplest backbone network used which is VGG-16.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/vgg_code.png}
+	\caption{Code for VGG-16 model.}\label{fig:vgg_code}
+\end{figure}
+
+All the other backbone networks used are implemented in a similar fashion. The full code is available in a Google drive \cite{code}. These backbone networks are designed initially with random weights and biases, but the Faster RCNN model loads up pre-trained weights and biases in order to use them for transfer learning.
+
+\subsubsection{Faster RCNN model class implementation}
+The "FasterRCNN" class defines the different parts of the Faster RCNN model which are demonstrated in \cref{fig:rcnn1}. The FasterRCNN class inherits from the class "GeneralizedRCNN" which is a built in class of Pytorch. GeneralizedRCNN provides some useful methods to models from the RCNN family. In addition to the FasterRCNN class, there are two additional classes implemented which are ``TwoMLPHead'' and ``FastRCNNPredictor''. TwoMLPHead is used to create the classifier and regressor networks that come after the RoI pooling layer.\cref{fig:rcnnclass} summarizes the model shown in \cref{fig:rcnn1}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/rcnnclass.png}
+	\caption{Skeleton code for the FasterRCNN() class.}\label{fig:rcnnclass}
+\end{figure}
+
+\subsubsection{Trainer function implementation}
+
+The training function contains the training loop in which the training process will take place. The first network to train is the RPN. Afterwards, the regressor and classifier networks are trained on the output of the RoI layer output. The training function starts by feeding a training example through the network. A Pytorch built-in function calculate the gradients and optimizes the weights. Another Pytorch built-in function calculates the losses and the training process saves them in a list for plotting.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/train.png}
+	\caption{Training function code.}\label{fig:train}
+\end{figure}
+The value of the total loss for each training process was plotted with respect to training steps.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/vgg_1.png}
-	\caption{VGG-16 for the first scales and aspect ratios}\label{fig:vgg3_}
+	\caption{VGG-16 for the first scales and aspect ratios.}\label{fig:vgg3_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/mobilenet_1.png}
-	\caption{mobilenet for the first scales and aspect ratios}\label{fig:mobilenet3_}
+	\caption{mobilenet for the first scales and aspect ratios.}\label{fig:mobilenet3_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/inception_1.png}
-	\caption{inception for the first scales and aspect ratios}\label{fig:inception1_}
+	\caption{inception for the first scales and aspect ratios.}\label{fig:inception1_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/resnet_1.png}
-	\caption{resnet for the first scales and aspect ratios}\label{fig:resnet1_}
+	\caption{resnet for the first scales and aspect ratios.}\label{fig:resnet1_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/vgg_2.png}
-	\caption{VGG-16 for the second scales and aspect ratios}\label{fig:vgg4_}
+	\caption{VGG-16 for the second scales and aspect ratios.}\label{fig:vgg4_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/mobilenet_2.png}
-	\caption{mobilenet for the second scales and aspect ratios}\label{fig:mobilenet4_}
+	\caption{mobilenet for the second scales and aspect ratios.}\label{fig:mobilenet4_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/inception_2.png}
-	\caption{inception for the second scales and aspect ratios}\label{fig:inception4_}
+	\caption{inception for the second scales and aspect ratios.}\label{fig:inception4_}
 \end{figure}
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=\textwidth]{figs/resnet_2.png}
-	\caption{resnet for the second scales and aspect ratios}\label{fig:resnet4_}
+	\caption{resnet for the second scales and aspect ratios.}\label{fig:resnet4_}
 \end{figure}
 
-After these models are trained, they need to be tested on both the training and testing set for analysis. The criterion chosen is the mAP(mean average percent) which is a performance evaluation formula which takes into account the accuracy of the classification as well as the precision of the localization of objects, see (reference publication). For each set of scales and aspect ratios the results of performance on the training and test set were tabulated in \cref{table:1}, \cref{table:2}, \cref{table:3}, \cref{table:4}.
+After these models are trained, they need to be tested on both the training and testing sets for analysis. The criterion chosen is the mAP(mean average precision, see \cref{appendix:B}). It is a performance evaluation formula which takes into account the accuracy of the classification as well as the precision of the localization of objects. For each set of scales and aspect ratios the mAP on the training and test set were tabulated in \cref{table:1}, \cref{table:2}, \cref{table:3}, \cref{table:4}.
 
 \begin{table}[!htpb]
 	\centering
-	\caption{mAP for plate detection on test set for first set of scales and anchor ratios}\label{table:1}
+	\caption{mAP for plate detection on training set for first set of scales and anchor ratios.}\label{table:1}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		10 epochs & 58\% & 65.1\% & 77.3\% & 78.4\% \\
+		30 epochs & 58.2\% & 65.1\% & 77\% & 78\% \\
+		50 epochs & 58\% & 65\% & 77\% & 78\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for plate detection on training set for second set of scales and anchor ratios.}\label{table:2}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		10 epochs & 27.5\% & 25.1\% & 27\% & 28.4\% \\
+		30 epochs & 27.5\% & 25.1\% & 27\% & 28\% \\
+		50 epochs & 27\% & 25\% & 27\% & 28\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for plate detection on test set for first set of scales and anchor ratios.}\label{table:3}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -153,7 +237,7 @@ After these models are trained, they need to be tested on both the training and 
 
 \begin{table}[!htpb]
 	\centering
-	\caption{mAP for plate detection on test set for second set of scales and anchor ratios}\label{table:2}
+	\caption{mAP for plate detection on test set for second set of scales and anchor ratios.}\label{table:4}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -165,11 +249,11 @@ After these models are trained, they need to be tested on both the training and 
 	\end{tabular}
 \end{table}
 
-The speed of these models is displayed in the following tables in number of seconds per frame. Keep in mind that the speed of the model does not depend on any hyper-parameter except for the size of the model itself and the input image size. The tests were run on a computer with an NVIDIA GPU model 930MX.
+The time complexity of these models is recorded in number of seconds per frame. Keep in mind that the speed of the model does not depend on any hyper-parameter except for the size of the model itself and the input image size. The tests were run on a computer with an NVIDIA GPU model 930MX.
 
 \begin{table}[!htpb]
 	\centering
-	\caption{Number of seconds that each plate detection model takes to process one frame}\label{table:time_1}
+	\caption{Number of seconds that each plate detection model takes to process one frame.}\label{table:time_1}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -179,12 +263,40 @@ The speed of these models is displayed in the following tables in number of seco
 	\end{tabular}
 \end{table}
 
-\subsubsection{Digit network}
-For this task, the same set of models were trained and the total loss graphs showed the same characteristics relevant for analysis as the ones plotted for plate detection. The same set of results were recorded for the digit recognition models, yielding the following tables.
+\subsection{Digit recognition network}
+The same set of models were trained and the total loss graphs showed the same characteristics relevant for analysis as the ones plotted for plate detection. The same set of results were recorded for the digit recognition models.
 
 \begin{table}[!htpb]
 	\centering
-	\caption{mAP for digit recognition on test set for 1st set of scales and anchor ratios}\label{table:3}
+	\caption{mAP for digit recognition on training set for 1st set of scales and anchor ratios.}\label{table:5}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+		10 epochs & 57.8\% & 64.9\% & 77.1\% & 77.4\% \\
+		30 epochs & 57.5\% & 64.9\% & 77.1\% & 77\% \\
+		50 epochs & 57.6\% & 64.8\% & 77\% & 77\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for digit recognition on training set for second set of scales and anchor ratios.}\label{table:6}
+	\begin{tabular}{@{}ccccc@{}}
+		\toprule[1.5pt]
+		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
+		\midrule
+		10 epochs & 25.5\% & 23.1\% & 25\% & 26.4\% \\
+		30 epochs & 25.5\% & 23.1\% & 25\% & 26\% \\
+		50 epochs & 25\% & 23\% & 25\% & 26\% \\
+		\bottomrule[1.5pt]
+	\end{tabular}
+\end{table}
+
+\begin{table}[!htpb]
+	\centering
+	\caption{mAP for digit recognition on test set for 1st set of scales and anchor ratios.}\label{table:7}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -198,7 +310,7 @@ For this task, the same set of models were trained and the total loss graphs sho
 
 \begin{table}[!htpb]
 	\centering
-	\caption{mAP results for digit recognition on test set for second set of scales and anchor ratios}\label{table:4}
+	\caption{mAP results for digit recognition on test set for second set of scales and anchor ratios.}\label{table:8}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -212,7 +324,7 @@ For this task, the same set of models were trained and the total loss graphs sho
 
 \begin{table}[!htpb]
 	\centering
-	\caption{Number of seconds that each digit recognition model takes to process one frame}\label{table:time_2}
+	\caption{Number of seconds that each digit recognition model takes to process one frame.}\label{table:time_2}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{VGG-16} & \head{Mobilenet} & \head{Inception} & \head{Res-Net} \\
@@ -222,33 +334,212 @@ For this task, the same set of models were trained and the total loss graphs sho
 	\end{tabular}
 \end{table}
 
-\subsubsection{The final application}
-The application is composed of a Python script that takes an image as input  and passes it through a plate detection model then uses the output to crop the regions containing a license plate and passes them through a digit recognition model (see figure). Both models had an Inception network as a backbone because it has the best mAP. This algorithm is slightly more robust to errors that can be made by the plate detection model, because it checks the digit recognition models' output if it contains a number of digits that is not consistent with reality. Note that Algerian license plates contain from  9 to 11 digits.
+\subsection{R-CNN ALPR system}
+The license plate recognition application is implemented using a Python script that takes an image as input and passes it through the plate detection model, then uses the output to crop the regions containing the license plates and passes them through the digit recognition model. Both models have an Inception network as backbone because it has the best mAP. This model is slightly more robust to errors that can be made by the plate detection model, because it checks if the digit recognition models' output contains a number of digits that is not consistent with reality. Note that Algerian license plates contain from  9 to 11 digits.
 
-For the evaluation of this application, the only relevant characteristics is either or not it reads the license plate number correctly. After testing on 100 test images containing 114 license plates, 96 license plates were read yielding, therefore an accuracy of \textbf{84.21\%}.
+For the evaluation of this model, the only relevant characteristics is whether or not it reads the license plate number correctly. After testing on 100 test images containing 114 license plates, 96 license plates were read correctly therefore the accuracy is \textbf{84.21\%}.
 
-\subsection{Using YOLOv3}
-\subsubsection{Module architecture}
-Both the plate and digits networks are based on the YOLOv3 architecture (see appendix) with some modification and parameter choices to fit in with
-the new datasets. The first changed to the base architecture is done to fit the new number of output classes. The original implementation was built to predicted the 80 classes from the COCO dataset \cite{YOLOv3}. Our networks, the plate and digit networks predicts one and ten possible classes respectively. As discussed in section, The network divides the input image into an $S \times S$ grid. The value of S must be chosen carefully. Indeed, a small value would be great but then in a dataset with overlapping objects a greater value of B must be chosen and the network will struggle with small objects since tiny changes in the output value will result in the bounding box swinging a lot which makes it hard to localize. A large value of S is preferable since we want each object to fall into his grid cell to be detected alone. This way a much smaller number of anchor boxes can be chosen because many objects are unlikely to fall into the same cell. But doing so, will result in a large output volume which makes the training difficult and slow. To remedy this problems, the YOLOv3 writer were pretty genius. Instead of having one output, they put three. Each one divides the input image into a different $S \times S$ grid. This depends on the input image shape. If the input image shape is $416 \times 416$, then the three outputs would result in a $13 \times 13$ grid at the first, a $26 \times 26$ at the second, and a $52 \times 52$ at the third output. This way, objects that have not been detected in one of the outputs are likely to be in the others. The authors also used a technique that takes a feature map from earlier in the network and merge it with upsampled features using concatenation. This method allows to get more meaningful semantic information from the upsampled feature maps and finer-grained information from earlier maps \cite{YOLOv3}. This technique helps a lot when dealing with small objects.
+\section{ALPR using YOLOv3}
+Using the other family, both the plate and digit networks are based on the YOLOv3 architecture (see \cref{subsubsection:tc}) with some modification and parameter choices to fit in with
+the new datasets. The first changed to the base architecture is done to fit the new number of output classes. The original implementation was built to predicted the 80 classes from the COCO dataset \cite{YOLOv3}. The plate and digit networks predict one and ten possible classes respectively. As discussed in \cref{subsection:bbox}, the network divides the input image into an $S \times S$ grid, the value of S must be chosen carefully. Indeed, a small value would be great but then in a dataset with overlapping objects a greater value of B must be chosen and the network will struggle with small objects since tiny changes in the output value will result in the bounding box swinging a lot which makes it hard to localize. A large value of S is preferable since we want each object to fall into his grid cell to be detected alone. This way, a much smaller number of anchor boxes can be chosen because many objects are unlikely to fall into the same cell. But doing so, it will result in a large output volume which makes the training more difficult and very slow. To remedy this problems, the YOLOv3 writer were pretty genius. Instead of having one output, they put three. Each one divides the input image into a different $S \times S$ grid. This depends on the input image shape. If the input image shape is $416 \times 416$, then the three outputs would result in a $13 \times 13$ grid at the first, a $26 \times 26$ at the second, and a $52 \times 52$ at the third output. This way, objects that have not been detected in one of the outputs are likely to be in the others. The authors also used a technique that takes a feature map from earlier in the network and merge it with upsampled features using concatenation. This method allows to get more meaningful semantic information from the upsampled feature maps and finer-grained information from earlier maps \cite{YOLOv3}. This technique helps a lot when dealing with small objects.
 
-\subsubsection{Training configuration}
-The convolutional network Darknet-53 (see appendix) pre-trained on the ImageNet dataset is used as a backbone for both networks. The backbone
-represents the 52 first layers in the architecture (see table). Since the network is huge it is impractical to retrain; that would take ages to train due to low computational power available. The last fully connected layer of Darknet-53 is remove and replaced with additional convolutional layers. The exact architecture is presented in appendix.
-Both networks have been trained with 0.001 learning rate using the Adam optimizer with a momentum of 0.9. The plate net has been trained for
-4500 iterations whereas the digits net for 8200 iterations. The number of iterations basically depends on the number of classes the network
+\subsection{Training configuration}\label{subsubsection:tc}
+The convolutional network Darknet-53 (see \cref{appendix:A}) pre-trained on the ImageNet dataset is used as a backbone for both networks. The backbone
+represents the 52 first layers in the architecture (see \cref{table:Darknet-53}). Since the network is huge, it is impractical to retrain; that would take ages to train due to low computational power available. The last FC layer of Darknet-53 is removed and replaced with seven additional convolutional layers, where the last one represents the first output. Next, the feature map from 2 previous layers is taken and upsampled (resized) by $2 \times$. A feature map is also taken from earlier in the network and merged with the upsampled features
+using concatenation. This method allows us to get more meaningful semantic information from the upsampled features and finer-grained information from the earlier feature map. Then, Few more convolutional layers are added to process this combined feature map, and eventually predict a similar tensor, although now twice the size. The same design is performed one more time to predict boxes for the final scale. Thus our predictions for the 3rd scale benefit from all the prior computation as well as fine-grained features from early on in the network \cite{YOLOv3}. See \cref{fig:arch}. \\
+Both networks have been trained with 0.001 learning rate using the Adam optimizer with a momentum of 0.9. The plate network has been trained for
+4500 iterations whereas the digits network for 8200 iterations. The number of iterations basically depends on the number of classes the network
 is training on. The more classes there are the more the number of iterations increases. This phenomenon is an empirical observation with no
-mathematical back up. Data augmentation has been used a lot through the process of training. Specifically, for each 10 iterations both networks randomly choose a new image dimension size, changes the saturation the exposure and the hue of the images. This regime forces the networks to learn to predict well across a variety of input dimensions and gain in robustness. Both networks have been trained in the cloud using a free google service called colab. It offers 12 hours access to a virtual machine equipped with an NVIDIA Tesla K80 GPU.
+mathematical back up. Data augmentation has been used a lot through the training process. Specifically, for each 10 iterations, both networks randomly choose a new image dimension size, changes the saturation, the exposure and the hue of the images. This regime forces the networks to learn to predict well across a variety of input dimensions and gain in robustness. Both networks have been trained in the cloud using a free google service called colab. It offers 12 hours access to a virtual machine equipped with an NVIDIA Tesla K80 GPU.
 
-\subsubsection{Training and testing results}
+\begin{figure}[!htpb]
+  \centering
+  \includegraphics[width=\textwidth]{figs/yolo_architecture.png}
+  \caption{YOLOv3 network architecture \cite{reference_1}.}\label{fig:arch}
+\end{figure}
+
+\subsection{Training process}
+The training process of both the plate and digit network has been realized using a deep learning framework called Darknet.
+Darknet has been developed by the YOLO paper's writers in order to train their own YOLO model. The framework is an
+open-source implementation hosted at \url{github.com}. Along with the framework, they provided detailed instructions
+for developers to train their own customized YOLO models. In order to use the framework, some specific files must be changed
+to fit the new developers model configuration. By configuration, we mean the number of classes that the model at hand
+is supposed to predict. Since the original implementation was built to predict 80 classes, the output volume
+predict by the network is $S \times S \times (3 * (5 + 80))$, whereas for the digit network for example, the number of
+classes to predict is 10, therefore the network must predict an $S \times S \times (3 * (5 + 10))$ output volume. The Darknet developers provide a ``.cfg'' file that contain the model configuration; all the layers of the network are list in this file. Namely, to indicate a convolutional layer with its input parameters, the syntax in \cref{fig:conv_cfg} has been followed.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics{figs/conv_cfg.png}
+	\caption{Convolutional layer representation in a cfg file.}
+	\label{fig:conv_cfg}
+\end{figure}
+
+where ``size'' represent the size of the filters applied (e.g. $3 \times 3$, $1 \times 1$, ...), ``filters'' represents the number of output filters constituting the output feature map, ``stride'' is the stride to use, ``pad'' is a boolean that indicates to either use padding or not. Finally, activation represents the activation function to use. In this case, only the leaky ReLU (defined by $f(x) = max(0.1x, x)$) and the linear activation functions are used.
+The majority of the layers are not to be changed since they represent the implementation of YOLOv3. The only layers
+to change are the layers designated by ``yolo'' and the convolutional layer just before it to fit our own custom network. See \cref{fig:yolo_conv_cfg}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth]{figs/yolo_conv_cfg.png}
+	\caption{Example of yolo layer in cfg file.}
+	\label{fig:yolo_conv_cfg}
+\end{figure}
+
+The convolutional layer just before the \emph{yolo} layer represents one of the three outputs of the network. It represents the output volume that the network is supposed to predict. Therefore, the filters parameter has to be changed in order to fit the new number of output classes. In our case, for the digit network for example, the output volume as discussed previously is $S \times S \times (3 * (5 + 10))$, meaning $S \times S \times 45$; the number of output filters outputted by this convolutional layer is therefore 45. This
+implies that the filter parameter should be set to 45 and this in all three output layers of the network.
+The \emph{yolo} layer in the other hand contains the following parameters:
+
+\begin{compactitem}
+	\item \textbf{anchors}, represent the initial hand-picked anchor boxes to be adjusted during training. Each pair represents
+	the width and the height of the anchor box respectively.
+	\item \textbf{mask}, is a boolean array representing the set of anchor boxes to use at each output. In \cref{fig:yolo_conv_cfg} only the $6^{th}$, $7^{th}$ and $8^{th}$ boxes are taken into consideration (indexing starts at 0).
+	\item \textbf{classes}, represent the number of output classes. In our example, ten.
+\end{compactitem}
+
+Another files that has to changed is ``obj.data'' file. \Cref{fig:obj.data} depicts a snippet of this file.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/obj_data.png}
+	\caption{obj.data file snippet.}
+	\label{fig:obj.data}
+\end{figure}
+
+The first parameter is obvious. The ``names'' parameter points to a file location containing the names of the output classes.
+In our case, it is just the digits from 0 to 9, and in the case of the plate network it is just \emph{plate}.
+The ``backup'' parameter is a pointer to a empty directory where the weights of the network will be saved
+into a binary file format. Finally, the ``train'' parameter points to a directory containing the training set.
+The training set is composed of images along side \emph{.txt} files representing the label of a particular image. \Cref{fig:yolo_label_file} shows an image label example in a .txt file format.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/yolo_label_file.png}
+	\caption{Example of YOLO image label convention.}
+	\label{fig:yolo_label_file}
+\end{figure}
+
+each line in this file represents a bounding box manually set using the tool in \cref{fig:label2}. There are 5 numbers in each line separated with spaces. The first number represents the class of the corresponding object (e.g. 0 for digit 0 in a license plate). The next four numbers represent the bounding box coordinates with respect to the image, where the first two numbers translates to the center position of the box and the two last numbers translates to the width and height of the box respectively.
+
+
+After downloading the Darknet framework into the colab environment, compiling it, and configuring all the necessary files, the training can starts. The training is launched using the command ./darknet train cfg file.
+
+\subsection{Inference process}
+The goal of training a network is to use it later on to make predictions on unseen data, this is referred to as \textbf{inference}.
+The Darknet framework cannot be used for that purpose since all the code it provides is hidden and the only way to
+access the different functions is through command lines, which is not very useful when it comes to build
+customized application. For this reason, the Darknet framework is only used to get the weights of the networks. For inference purposes, one can use the weights saved into binary format file and load them into a
+YOLOv3 network created using another deep learning framework. Frameworks like Pytorch give access to very basic
+building blocks of neural networks such as FC layers and convolutional layers to build custom networks from the
+ground up unlike Darknet. Pytorch offers way more flexibility and customization options, with it being easy to use.
+Therefore the following strategy has been adapted to make use of the weights obtained from the training process
+and make predictions:
+
+\begin{compactitem}
+	\item Rebuild YOLOv3 network using Pytorch.
+	\item Creating a function called ``predict\_transform()'' to interpret the YOLOv3 output.
+	\item Creating a function called ``load\_weights()'' to load the weights obtained form training into the Pytorch Modules.
+\end{compactitem}
+
+\subsubsection{Rebuilding YOLOv3 network}
+In order to achieve this, we make use of the cfg file. In \cref{fig:parse_cfg}, the function ``parse\_cfg()'' takes in a cfg file location as parameter, reads the file and split it into a python list at each end of line character, gets rid of the empty lines and comments, as well as stripping each line. The idea to rebuild the network is to go through each line and store every layer as a dictionary. The parameters of each layer are stored as key-value pairs in that same dictionary. As we parse through the cfg file, we keep appending these dictionaries denoted by the variable \emph{block} to a list \emph{blocks}.
+After that the returned layers list is fed as parameter to a function called ``create\_modules'' to construct the Pytorch modules corresponding to the different layers in the cfg file.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/parse_cfg.png}
+	\caption{parse\_cfg function implementation.}
+	\label{fig:parse_cfg}
+\end{figure}
+
+\subsubsection{Creating predict\_transform function}
+
+Next, we implement the forward pass of the network which is typically done by overriding the ``forward()'' function of
+the ``nn.Module'' Pytorch class after inheriting from it. \emph{forward} serves two purposes: calculate the outputs
+and transform the output feature map using \cref{bbox}.
+The output of YOLO is a convolutional feature map that contains the bounding box attributes along the depth of the feature map.
+The attributes of bounding boxes predicted by a cell are stacked one by one along each other. This form is very inconvenient for
+output processing such as thresholding by a confidence score, adding grid offsets to centers, applying anchors etc.
+Another problem is that since detections happen at three scales, the dimensions of the prediction maps will be different.
+Although the dimensions of the three feature maps are different, the output processing operations to be done on them are
+similar. It would be nice to have to do these operations on a single tensor, rather than three separate tensors.
+
+To remedy these problems, we make use of a function called predict\_transform that takes in a detection feature map
+and turns it into a 2D tensor, where each row of the tensor corresponds to attributes of a bounding box,
+in the order depicted in \cref{fig:2dtensorrepresentation} , and the code to do the above operation is illustrated in \cref{fig:2dtensorrepresentationcode}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/2dtensorrepresentation.png}
+	\caption{2D tensor representation of the output feature map.}
+	\label{fig:2dtensorrepresentation}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth, scale=.5]{figs/2dtensorrepresentationcode.png}
+	\caption{2D tensor transformation implementation.}
+	\label{fig:2dtensorrepresentationcode}
+\end{figure}
+
+then \cref{bbox} is applied to each bounding box through the rest of the code in \cref{2dtensorrepresentationcode_rest}. Three feature
+maps are passed into this function which transforms them into the mentioned form. These feature maps are then
+concatenated into one long tensor.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=\textwidth, scale=.5]{figs/2dtensorrepresentationcode_rest.png}
+	\caption{Bounding box calculation implementation.}
+	\label{fig:2dtensorrepresentationcode_rest}
+\end{figure}
+
+After that, non-max suppression is applied to the output prediction which contains all the bounding boxes of the three
+outputs. The algorithm has already been explained in chapter 3. It's implementation rely on the function ``torch.ops.nms'' which return a set of indices corresponding to the bounding boxes selected by the operation. Then boolean masking is applied to the 2D tensor representation of the output to extract the boxes indexed by the non-max suppression.
+
+\subsubsection{Loading weights to the Pytorch modules}
+
+The weights are stored in binary files in a serial fashion. Extreme care must be taken when reading the weights
+as they are just stored as floats one next to the other without guide or separation to indicate to which layer
+these set of weights belong to. In order to read the weight file, we implemented a function called ``load\_weights''
+which takes the weights file as a parameter. First, the file is read using built-in python function ``open()''.
+Then, to read specific parts of the file we use the ``fromfile()'' function from the famous \emph{NumPy} library. This function
+takes the file read using \emph{open()}, the data type of the data to extract and the number of data we want to extract.
+For example, the first 160 bytes of the weights file store 5 int32 values which constitute the header of the file. They can be
+extracted using \emph{fromfile()} as shown in \cref{fig:fromfile} \cite{}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/fromfile.png}
+	\caption{The fromfile function in action.}
+	\label{fig:fromfile}
+\end{figure}
+
+The only layers that contain weights in the YOLOv3 network are the convolutional layers. The biases are
+stored first then the filters as in \cref{fig:bcstore} \cite{binary}.
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[scale=.5]{figs/bcstore.png}
+	\caption{Biases and filters storage fashion in a binary file \cite{binary}.}
+	\label{fig:bcstore}
+\end{figure}
+
+Then we loop through the modules return by the function create\_modules(), and with the fromfile() function
+and the class methods of the different Pytorch modules we extract the weights and load them to the different modules. All the code used in this project related to YOLOv3 can be found at \url{https://github.com/netvor-73/Lpd} along with the weights and corresponding cfg files.
+
+After successfully training the networks, loading the weights into the Pytorch implementation, we tested our
+results on different test sets and the results have been recorded below.
+
+
+\subsection{Testing results}
 \subsubsection{Plate network}
 The plate network has been trained on 630 manually labeled images. It has been trained for 1400 iterations first where the loss went down to
-0.123 with an mAP of 97.0\% (see \cref{fig:chart_1}) on the test set, 270 images where used. But after inspection, we find out that the model struggled with the case of multiple plates in the same image and some fuzzy images. We restarted training for another 2500 iterations from the same point in the hope to get the loss under 0.03, but unfortunately, the training took too long without any noticeable results, therefore we stopped it at 0.052 loss with mAP of 97.8\% (see \cref{fig:chart_2}). In fact, these are pretty good results, and further improvements can be made with more training data and hopefully our initial problems where solved. \Cref{table:plate_result} summarizes the above.
+0.123 with an mAP of 97.0\% (see \cref{fig:chart_1}) on the test set where 270 images have been used. But after inspection, we find out that the model struggled with the case of multiple plates in the same image and some fuzzy images. We restarted training for another 2500 iterations from the same point in the hope to get the loss under 0.03, but unfortunately, the training took too long without any noticeable results, therefore we stopped it at 0.052 loss with mAP of 97.4\% (see \cref{fig:chart_2}). In fact, these are pretty good results, and further improvements can be made with more training data and hopefully our initial problems where solved. \Cref{table:plate_result} summarizes the different results mentioned above.
 
 \begin{figure}[!htpb]
   \centering
   \includegraphics[width=0.9\textwidth]{figs/plate_1400.png}
-  \caption{Loss plot for the plate network after 1400 iterations}
+  \caption{Loss plot for the plate network after 1400 iterations.}
   \label{fig:chart_1}
 \end{figure}
 
@@ -261,70 +552,69 @@ The plate network has been trained on 630 manually labeled images. It has been t
 
 \begin{table}[!htpb]
 	\centering
-	\caption{Plate network results using YOLOv3 model}\label{table:plate_result}
+	\caption{Plate network results using YOLOv3 model.}\label{table:plate_result}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{Loss} & \head{mAP} \\
 		\midrule
     1400 epochs & 0.123 &  97.0\% \\
-    4000 epochs & 0.052 &  97.8\%  \\
+    4000 epochs & 0.052 &  97.4\%  \\
 		\bottomrule[1.5pt]
 	\end{tabular}
 \end{table}
-
-\Cref{fig:plate_example} shows some examples of plate detection using our network.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics{figs/plate_ie.png}
-	\caption[Plate detection examples]{Plate detection examples. a) Successful detection under challenging conditions b)Complete failure. This is probably due to the shape and the color of the plate which are not usual.}
+	\caption[Plate detection examples]{Plate detection examples. a) Successful detection under challenging conditions b)Complete failure.}
 	\label{fig:plate_example}
 \end{figure}
 
+\Cref{fig:plate_example} shows some examples of plate detection using our network. The problems encountered here are probably due to the shape and the color of the plates which are not usual; they don't appears often in the training dataset.
+
 \subsubsection{Digit network}
-The digit network has been trained on 845 images containing 10,402 hand annotated digits. As the plate net, it has been trained for 4000 iterations
-at the beginning which brought the loss to 0.8205 with an mAP of 92.0\% on a test set containing 145 images with 1453 annotations.
+
+The digit network has been trained on 845 images containing 10,402 hand annotated digits. As the plate network, it has been trained for 4000 iterations
+at the beginning which brought the loss to 0.8205 with an mAP of 64.2\% on a test set containing 145 images with 1453 annotations.
 The network took so long to get there, but unfortunately doing horribly on the test set. We restarted training for another 4000 iterations
-and finally got the network to 0.567 loss with a 93.8\% mAP on the test set (The plots of the plate and digit network are very similar, therefore there is no need to show them). \Cref{table:digit_results} summarizes the above.
+and finally got the network to 0.567 loss with a 65.1\% mAP on the test set (The plots of the plate and digit network are very similar, therefore there is no need to show them). \Cref{table:digit_results} summarizes the results mentioned above.
 
 \begin{table}[!htpb]
 	\centering
-	\caption{Digit network results using YOLOv3 model}\label{table:digit_results}
+	\caption{Digit network results using YOLOv3 model.}\label{table:digit_results}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
 		\head{Number of Epochs} & \head{Loss} & \head{mAP} \\
 		\midrule
-    4000 epochs & 0.8205 &  92.0\% \\
-    8000 epochs & 0.567 &  93.8\%  \\
+    4000 epochs & 0.8205 &  64.2\% \\
+    8000 epochs & 0.567 &  65.1\%  \\
 		\bottomrule[1.5pt]
 	\end{tabular}
 \end{table}
 
-\Cref{fig:digits_example} shows some examples of digit detection using our network.
+
+\Cref{fig:digits_example} shows some examples of digit detection using our network. Our model struggles a lot with diagonal images due to the lack of examples.
 
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[scale=.7]{figs/digits_ie.png}
-	\caption[Digit detection examples]{Digit detection examples. a) Complete failure. Our model struggles a lot with diagonal images due to the lack of examples. b) Successful detection in blurry images. c) Detection of a false negative in the top right corner.}
+	\caption[Digit detection examples]{Digit detection examples. a) Complete failure. b) Successful detection in blurry images. c) Detection of a false negative in the top right corner.}
 	\label{fig:digits_example}
 \end{figure}
 
-\subsubsection{Speed testing the system}
-The networks have been tested locally on an i5-825u CPU. The speed of networks mainly depends on the input image size; the bigger the image
-the slower the processing time. Our networks both resize the input images to 416 by 416 keeping their aspect ratios. All speed tests
-performed in this project disregard the time it takes to save images to disk and load the networks into memory.
-Only the processing time used by the networks is measured. Table below summarizes all everything discussed above.
+\subsection{YOLO ALPR speed test}
+The networks have been tested in the cloud on an NVIDIA Tesla K80 GPU. The speed of networks mainly depends on the input image size; the bigger the image the slower the processing time. Our networks both resize the input images to 416 pixels by 416 pixels keeping their aspect ratios. All speed tests performed in this project disregard the time it takes to save images to disk and load the networks into memory. Only the processing time used by the networks is measured, see \cref{table:speed_test}.
 
 \begin{table}[!htpb]
 	\centering
-	\caption{Speed test summary}
+	\caption{Speed test summary.} \label{table:speed_test}
 	\begin{tabular}{@{}ccccc@{}}
 		\toprule[1.5pt]
-		\head{Network} & \head{Average Time (s)} \\
+		\head{Network} & \head{Average Time} \\
 		\midrule
-    Plate network & 0.41 s  \\
-    Digit network & 0.42 s  \\
-    Entire system & 0.76 s \\
+    Plate network & 26.7 ms  \\
+    Digit network & 26.9 ms  \\
+    Entire system & 52.6 ms \\
 		\bottomrule[1.5pt]
 	\end{tabular}
 \end{table}
@@ -332,9 +622,45 @@ The final system using YOLOv3 has been tested on 145 images, 102 were correctly 
 
 Here are some examples of plate and digit detection by the final system.
 
-\begin{figure}[H]
+\begin{figure}[!htpb]
 	\centering
 	\includegraphics[scale=.7]{figs/example.png}
-	\caption[Entire system flow example.]{Entire system flow example. $1^{st}$quadrant) Successful detection under normal conditions. $2^{nd}$quadrant) Successful detection under challenging conditions. $3^{rd}$quadrant) Missing digits under extreme conditions. $4^{th}$ quadrant) Misclassification of foreign plate (this is normal since the system wasn't design for that purpose).}
+	\caption[Examples of ALPR detection.]{Examples of ALPR detection. $1^{st}$quadrant) Successful detection under normal conditions. $2^{nd}$quadrant) Successful detection under challenging conditions. $3^{rd}$quadrant) Missing digits under extreme conditions. $4^{th}$ quadrant) Misclassification of foreign plate (this is normal since the system wasn't design for that purpose).}
 	\label{fig:examples_detection}
 \end{figure}
+
+The research goal of this project was to propose and develop an ALPR system using deep learning techniques. Given the wide variety of these techniques, two of them have been selected due to their popularity in the literature in a variety of other tasks. The exact requirements for an ALPR system depend on the application, but generally the requirements are an almost human-level prediction accuracy and a decent processing speed for real-time video streams.
+
+\section{RCNN result analysis}
+
+\subsection{Total loss graphs}
+At first glance at the graphs in \cref{subsection:ufrcc}, it appears that the first set of scales and aspect ratios for the RPN anchors produce a cost function that converges towards a certain minimum. Whereas the second set of scales and aspect ratios produce a cost function that is seemingly divergent, and keeps oscillating around the initial cost value. This is due to the fact that the first set of scales and aspect ratios produce anchors which are similar in shape and scale to those in both training data sets. Using the second set was an attempt to find a better suited one for the tasks at hand, but it seems like there needs to be a grid-search\cite{b15} operation in order to possibly find one, which requires more advanced hardware resources and more time. The first set of scales and aspect ratios was used by the authors of the original paper and obtained the best results on very large and diverse data sets of common objects such as COCO\cite{b18}, PASCAL\cite{b19}, and Image-NET\cite{b20}.
+
+The second characteristic to notice is the fact that less complex models start at a higher loss value but converge towards a minimum faster than more complex ones. This confirms that models with less layers and less parameters per layer train faster than ones with more layers and more parameters. This is explained by the fact that the data sets at hand are too small to influence very deep models like Res-Net.This phenomenon is called "Over-parameterization" \cite{b16}, where a machine learning model contains too much parameters to train on the data set at hand. This also explains why the Res-Net model converges towards a minimum cost which is higher than that of the less complex models.
+
+\subsection{mAP tables}
+The mAP tables in \cref{subsection:ufrcc} shows that the models trained using the first set of anchors and aspect ratios perform far better than the ones using the second set of scales and aspect ratios, which is an obvious result based on the total loss curves. The best result was obtained by the model using Inception network as a backbone which is 75\% and 74.4\% for test sets of plate detection and digit recognition respectively. For Res-Net, the performance seems to have dropped, which is explained by the fact that Res-Net needs more data to learn the specific features of the objects. The difference between the performance on the training set and testing set is expectable since the test set is data which the model has never seen before, but what is remarkable is that this difference is bigger for Res-Net backbone models than it is for the other models. This indicates that the Res-Net backbone model has "Over-fitted"\cite{b15} to the training set. Since the other models did not over-fit, it is only reasonable to deduce that the overfitting was due to the higher complexity of the Res-Net based models, which tends to happen with highly complex machine learning models.
+
+\section{YOLOv3 result analysis}
+
+\subsection{Total loss graphs}
+We clearly observe in the graphs, that the loss function quickly converges towards a certain minimum, in contrast to the RCNN with the second set of anchors. This is due to the design of the YOLOv3 network. Indeed, it is a single end-to-end object detection neural network, which by definition is designed to minimize a loss function. The advantage of YOLOv3 is, it would still work even without the introduction of anchor boxes but the benefit of that is the stabilization of training, which makes it converge significantly faster. Therefore YOLO does not suffer from the selection of anchors.
+
+\subsection{mAP tables}
+The mAPs results speak for them selves. The plate network is very good at detecting plates, even better than the RCNN model and way faster. It achieves around 27 ms per image processed, equivalent to about 37 FPS (frames per second) when running on video streams. This is within the requirements to run on real-time video streams without dropping frames. To achieve such high processing speeds, a relatively modern GPU is required. This is not problematic for real-world applications running on desktop; however for applications running on embedded devices, another lighter architecture should be consider which would drop mAP significantly. The digit network in the other hand is achieving real-time video processing speeds as well, but with a relatively low mAP which is way far from human performance; this caused the overall accuracy of the system to dramatically drop. It is mainly due to the unbalance within the dataset. Although the number of training examples is relatively high, some digits are under represented which is problematic. Therefore, a more balanced dataset would fix the problem. This can be achieved providing more data.
+
+\section{Final application}
+Both proposed methods in this work achieved descent accuracies as well as enough processing speeds. But as it has been demonstrated, the RCNN method despite of its high accuracy (84.21\%) suffers from relatively low processing speeds. On the other side, disregarding its relatively low accuracy (70.3\%), YOLO achieves real times video processing capabilities. Therefore, in the aim to compensate for each other weaknesses, a hybrid model between both methods seems the way to go. Indeed, the YOLO plate detector has been proven to be really efficient in terms of accuracy and speed, whereas the RCNN digit network has proven its robustness to extremely challenging conditions. Given these two pieces of information, these last networks have been combined together in a final Python pipeline implementing the describe flow diagram illustrated in \cref{fig:full_sys}. The hybrid method runs on real-time video streams, with an accuracy of \textbf{81.36\%} which almost meets human performance.
+
+The proposed method is very general. It could easily adapt to many real-life scenarios without changing the dataset. It has been proven to work in very harsh conditions. Indeed, with a relatively controlled environment; good camera placement and descent lighting conditions the method would achieve super human-performance quite easily. In addition, the method could, as well, be adapted to different datasets without major changes. The system is extremely versatile given that it does not use any hand-crafted features but rather learn them which is quite powerful.
+
+The accuracy of 81.36\% obtained in the application testing is considered a good result for a first attempt. Although there are many ways to improve this result by working on:
+\begin{compactitem}
+	\item Building a bigger data set.
+	\item Using more modern techniques and deep learning models.
+	\item Encoding the models as C++ data structures to improve inference speed.
+	\item Using CUDA programming language to optimize computations on GPU \cite{b21}.
+	\item Using unsupervised learning techniques to make sure that the model keeps learning from its' mistakes even after the application deployment.
+\end{compactitem}
+
+There are other ways to correct the short-comings of the application without any work being done on the model. For instance, the application can provide the model with many frames of the same car, thereby making sure that if the model makes a mistake in one frame, it can correct it in another. The accuracy can also be boosted, in a human-assisted environment with the addition of a warning system. This can be easily achieved by thresholding the number of digits detected; whenever this number is less than a certain threshold, the system warns the human-assistance of a wrongly detected plate.
